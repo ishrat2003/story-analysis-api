@@ -1,0 +1,64 @@
+{
+    "body": {
+        "title": "Students to be offered first choice university places",
+        "description": "The government is also lifting student number caps for would be doctors, dentists, vets and teachers.",
+        "link": "https://www.bbc.co.uk/news/education-53850146",
+        "pubDate": "Thu, 20 Aug 2020 12:56:29 GMT",
+        "content": "Universities in England will offer all students with the grades places on their first choice courses, but many will have to start next year.  The government has also lifted the cap on medical, dentistry, veterinary and teaching courses, and agreed targeted extra funding.  Universities UK said the A-level U-turn still posed \"significant challenges\", and called for more funding. Universities minister Michelle Donelan acknowledged the difficulties faced. England's Department for Education said all offers to students who met their conditions would be honoured this coming year, wherever possible. Revised A-levels results in England - after the algorithm was scrapped following the downgrading of nearly 40% of grades last week - show 38.1% of  results were awarded an A* or A, compared to 25.2% last year.  Failures were down, with 0.3% of entries not getting a pass, compared to 2.5% last year.  Delays to BTec results, which were pulled on Wednesday to allow examiners to raise grades in line with A-levels, have left a new group of students worried about losing out on their preferred courses.  Labour has called for a \"cast-iron guarantee\" to all students that their offers will be upheld.  \nHancock 'looking at' lifting cap on medical places\nUniversities facing 'crazy demand' from students\nWhat's happening with university admissions?\nAnger over 'unfair' A-level results\n Hancock 'looking at' lifting cap on medical places Universities facing 'crazy demand' from students What's happening with university admissions? Anger over 'unfair' A-level results With more students making their offer requirements, universities are under considerable pressure due to \"late movement of student between institutions\", according to Alistair Jarvis, chief executive of Universities UK.  \"Government now needs to urgently confirm funding both to ensure the financial stability of institutions suffering from a loss of students and to offer further support to maintain and build capacity where needed,\" said Mr Jarvis.  He added: \"Universities and their admissions teams are doing everything they can to accommodate students on their first choice course and where this is not practically possible, to advise on and offer other opportunities, such as a deferred place for next year or a suitable alternative course.  \"The priority must be to support students.\"  Mr Jarvis welcomed the move by government to lift long-standing student number controls on domestic students in:  \nmedicine\ndentistry\nveterinary science\nand undergraduate teacher training\n medicine dentistry veterinary science and undergraduate teacher training Ms Donelan said she wanted to reassure students that \"every effort is being made to make sure all those who planned to, can move to higher education\".  She said she was delighted that government and the higher education sector had \"agreed that all students who achieved the required grades will be offered a place at their first choice university\". \"I want universities to do all they can to take them on this year or offer alternative courses or deferred places where required. \"The pandemic has highlighted more than ever the importance of our fantastic healthcare services and the need to invest in them,\" she added.  She also said there would be additional grant funding to boost capacity in high cost subjects including medicine, nursing, the sciences, engineering, technology and maths, but gave no details. But there are concerns that while some institutions find themselves oversubscribed, others will have the reverse problem.  Dr Tim Bradshaw, chief executive of the highly selective Russell Group of universities said admissions teams were \"working round the clock\".  He welcomed the government's decision a \"a very positive step\".  \"Russell Group universities are working with government and will do everything they can to accommodate as many students as possible on their preferred courses this year.\" "
+    },
+    "resource": "/{proxy+}",
+    "path": "/lc",
+    "httpMethod": "POST",
+    "isBase64Encoded": false,
+    "queryStringParameters": {},
+    "pathParameters": {
+        "proxy": "/path/to/resource"
+    },
+    "stageVariables": {},
+    "headers": {
+        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
+        "Accept-Encoding": "gzip, deflate, sdch",
+        "Accept-Language": "en-US,en;q=0.8",
+        "Cache-Control": "max-age=0",
+        "CloudFront-Forwarded-Proto": "https",
+        "CloudFront-Is-Desktop-Viewer": "true",
+        "CloudFront-Is-Mobile-Viewer": "false",
+        "CloudFront-Is-SmartTV-Viewer": "false",
+        "CloudFront-Is-Tablet-Viewer": "false",
+        "CloudFront-Viewer-Country": "US",
+        "Host": "1234567890.execute-api.eu-west-1.amazonaws.com",
+        "Upgrade-Insecure-Requests": "1",
+        "User-Agent": "Custom User Agent String",
+        "Via": "1.1 08f323deadbeefa7af34d5feb414ce27.cloudfront.net (CloudFront)",
+        "X-Amz-Cf-Id": "cDehVQoZnx43VYQb9j2-nvCh-9z396Uhbp027Y2JvkCPNLmGJHqlaA==",
+        "X-Forwarded-For": "127.0.0.1, 127.0.0.2",
+        "X-Forwarded-Port": "443",
+        "X-Forwarded-Proto": "https"
+    },
+    "requestContext": {
+        "accountId": "123456789012",
+        "resourceId": "123456",
+        "stage": "survey",
+        "requestId": "c6af9ac6-7b61-11e6-9a41-93e8deadbeef",
+        "requestTime": "09/Apr/2015:12:34:56 +0000",
+        "requestTimeEpoch": 1428582896000,
+        "identity": {
+            "cognitoIdentityPoolId": null,
+            "accountId": null,
+            "cognitoIdentityId": null,
+            "caller": null,
+            "accessKey": null,
+            "sourceIp": "127.0.0.1",
+            "cognitoAuthenticationType": null,
+            "cognitoAuthenticationProvider": null,
+            "userArn": null,
+            "userAgent": "Custom User Agent String",
+            "user": null
+        },
+        "path": "/prod/path/to/resource",
+        "resourcePath": "/{proxy+}",
+        "httpMethod": "POST",
+        "apiId": "1234567890",
+        "protocol": "HTTP/1.1"
+    }
+}

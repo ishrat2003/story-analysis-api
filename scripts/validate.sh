@@ -1,0 +1,1 @@
+sam validate --template-file ./story-survey-api/template.yaml 

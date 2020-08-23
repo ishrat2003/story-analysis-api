@@ -1,0 +1,27 @@
+{
+    "AttributeDefinitions": [
+        {
+            "AttributeName": "created",
+            "AttributeType": "S"
+        },
+        {
+            "AttributeName": "id",
+            "AttributeType": "S"
+        }
+    ],
+    "TableName": "story_survey",
+    "KeySchema": [
+        {
+            "AttributeName": "id",
+            "KeyType": "HASH"
+        },
+        {
+            "AttributeName": "created",
+            "KeyType": "RANGE"
+        }
+    ],
+    "ProvisionedThroughput": {
+        "ReadCapacityUnits": 5,
+        "WriteCapacityUnits": 5
+    }
+}
