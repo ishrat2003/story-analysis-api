@@ -5,28 +5,34 @@ Description: >
 
   Sample SAM Template for story-survey-api
 
-# More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
+Parameters:
+
+  ENVIRONMENT_NAME:
+    Description: 'Environment name'
+    Type: 'AWS::SSM::Parameter::Value<String>'
+    Default: 'Production'
+  
+  DYNAMODB_ENDPOINT:
+    Description: 'DynamoDb endpoint'
+    Type: 'AWS::SSM::Parameter::Value<String>'
+    Default: 'http://host.docker.internal:8000'
+
+# More info about Globals: 
 Globals:
   Function:
-    Timeout: 10
+    # Properties of AWS::Serverless::Function
+    Timeout: 1000
+    Environment:
+      Variables:
+        API_NAME: story_survey_api
+        ENVIRONMENT_NAME: !Ref ENVIRONMENT_NAME
+        DYNAMODB_ENDPOINT: !Ref DYNAMODB_ENDPOINT
   Api:
+    # Properties of AWS::Serverless::Api
     Cors:
       AllowMethods: "'GET,OPTIONS'"
       AllowHeaders: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
       AllowOrigin: "'*'"
-
-Parameters:
-  Environment:
-    Type: String
-    Description: Choose between local or AWS
-    AllowedValues:
-      - local
-      - aws
-    Default: local
-  DDBTableName:
-    Type: String
-    Description: The name of the DynamoDB tablename
-    Default: story_survey
     
 Resources:
 
@@ -42,6 +48,22 @@ Resources:
           Properties:
             Path: /hello
             Method: get
+
+  SurveyFunction:
+    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Properties:
+      CodeUri: survey/
+      Handler: app.save_handler
+      Runtime: python3.8
+      Environment:
+        Variables:
+          TABLE_NAME: story_survey
+      Events:
+        survey:
+          Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
+          Properties:
+            Path: /survey
+            Method: post
 
   LcFunction:
     Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
@@ -79,3 +101,13 @@ Outputs:
   LcIamRole:
     Description: "Implicit IAM Role created for Lc function"
     Value: !GetAtt LcFunctionRole.IamRoleArn
+
+  SurveyApi:
+    Description: "API Gateway endpoint URL for Prod stage for Hello World function"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/lc/"
+    SurveyFunction:
+    Description: "Survey Lambda Function ARN"
+    Value: !GetAtt SurveyFunction.Arn
+    SurveyIamRole:
+    Description: "Implicit IAM Role created for Survey function"
+    Value: !GetAtt SurveyFunctionRole.IamRoleArn

@@ -1,10 +1,6 @@
 {
     "AttributeDefinitions": [
         {
-            "AttributeName": "created",
-            "AttributeType": "S"
-        },
-        {
             "AttributeName": "id",
             "AttributeType": "S"
         }
@@ -14,10 +10,6 @@
         {
             "AttributeName": "id",
             "KeyType": "HASH"
-        },
-        {
-            "AttributeName": "created",
-            "KeyType": "RANGE"
         }
     ],
     "ProvisionedThroughput": {

@@ -1,0 +1,1 @@
+aws dynamodb scan --table-name=story_survey --endpoint-url http://localhost:8000 --region eu-west-1
