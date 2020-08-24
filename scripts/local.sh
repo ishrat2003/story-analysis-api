@@ -14,16 +14,16 @@ echo "Creating $NETWORK_NAME"
 docker network create -d bridge "$NETWORK_NAME"
 
 
-echo "\n2. Dynamodb"
+echo -e "\n2. Dynamodb"
 echo -e "----------------------------\n"
 
 echo "Stopping dynamodb container $DB_CONTAINER_NAME"
 docker rm "$DB_CONTAINER_NAME"
 
 echo "Starting dynamodb container $DB_CONTAINER_NAME"
-docker run -d -v "$PWD":"$LOCAL_DB_PATH" -p 127.0.0.1:8000:8000 --network "$NETWORK_NAME" --name "$DB_CONTAINER_NAME" amazon/dynamodb-local
+docker run -d -v "$PWD":"$LOCAL_DB_PATH" -p 8000:8000 --network "$NETWORK_NAME" --name "$DB_CONTAINER_NAME" amazon/dynamodb-local
 
-echo "\n3. Starting application"
+echo -e "\n3. Starting application"
 echo -e "----------------------------\n"
 
 echo "Validating Cloud Formation template"
