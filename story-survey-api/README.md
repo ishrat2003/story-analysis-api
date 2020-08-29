@@ -118,3 +118,39 @@ aws cloudformation delete-stack --stack-name story-survey-api
 See the [AWS SAM developer guide](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/what-is-sam.html) for an introduction to SAM specification, the SAM CLI, and serverless application concepts.
 
 Next, you can use AWS Serverless Application Repository to deploy ready to use Apps that go beyond hello world samples and learn how authors developed their applications: [AWS Serverless Application Repository main page](https://aws.amazon.com/serverless/serverlessrepo/)
+
+
+https://towardsdatascience.com/introduction-to-amazon-lambda-layers-and-boto3-using-python3-39bd390add17
+pip3 install regex -t story-survey-api/dependencies/. --upgrade
+
+
+Installing multiple python version in mac
+https://www.chrisjmendez.com/2017/08/03/installing-multiple-versions-of-python-on-your-mac-using-homebrew/
+
+```
+brew update
+brew install pyenv
+pyenv install 3.6.8
+pyenv install 3.7.7
+pyenv install 3.8.5
+echo 'eval "$(pyenv init -)"' >> ~/.bash_profile
+source ~/.bash_profile
+```
+
+see all installed version
+```
+pyenv install -l | grep -ow [0-9].[0-9].[0-9]
+```
+
+set local version
+```
+pyenv versions
+pyenv local 3.x.x
+pyenv global 3.x.x
+python -V
+```
+
+not all numpy version are installable in lamda.
+https://github.com/pbegle/aws-lambda-py3.6-pandas-numpy
+
+pip install nltk -t .

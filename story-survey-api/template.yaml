@@ -36,12 +36,30 @@ Globals:
     
 Resources:
 
+  P36NumpyPandaLayer:
+    Type: AWS::Serverless::LayerVersion
+    Properties:
+        LayerName: P36NumpyPandaLayer
+        Description: P36NumpyPanda (Python 3.6, numpy, panda)
+        ContentUri: layers/P36NumpyPanda
+        CompatibleRuntimes:
+          - python3.6
+
+  NltkLayer:
+    Type: AWS::Serverless::LayerVersion
+    Properties:
+        LayerName: NltkLayer
+        Description: Nltk toolkit Layer (nltk)
+        ContentUri: layers/NltkBasic
+        CompatibleRuntimes:
+          - python3.6
+
   HelloWorldFunction:
     Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
     Properties:
       CodeUri: hello_world/
       Handler: app.lambda_handler
-      Runtime: python3.8
+      Runtime: python3.6
       Events:
         HelloWorld:
           Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
@@ -54,7 +72,7 @@ Resources:
     Properties:
       CodeUri: survey/
       Handler: app.save_handler
-      Runtime: python3.8
+      Runtime: python3.6
       Environment:
         Variables:
           TABLE_NAME: story_survey
@@ -70,14 +88,17 @@ Resources:
     Properties:
       CodeUri: lc/
       Handler: app.lambda_lc_handler
-      Runtime: python3.8
+      Layers:
+        - !Ref P36NumpyPandaLayer
+        - !Ref NltkLayer
+      Runtime: python3.6
       Events:
         lc:
           Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
           Properties:
             Path: /lc
             Method: post
-                      
+
 Outputs:
   # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function
   # Find out more about other implicit resources you can reference within SAM

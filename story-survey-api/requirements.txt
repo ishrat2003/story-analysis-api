@@ -1,0 +1,8 @@
+wheel
+numpy
+boto3
+os
+uuid
+datetime
+socket
+nltk
