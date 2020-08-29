@@ -40,7 +40,7 @@ Resources:
     Type: AWS::Serverless::LayerVersion
     Properties:
         LayerName: P36NumpyPandaLayer
-        Description: P36NumpyPanda (Python 3.6, numpy, panda)
+        Description: P36NumpyPanda (Python 3.6, numpy, panda, regex)
         ContentUri: layers/P36NumpyPanda
         CompatibleRuntimes:
           - python3.6
@@ -53,19 +53,6 @@ Resources:
         ContentUri: layers/NltkBasic
         CompatibleRuntimes:
           - python3.6
-
-  HelloWorldFunction:
-    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
-    Properties:
-      CodeUri: hello_world/
-      Handler: app.lambda_handler
-      Runtime: python3.6
-      Events:
-        HelloWorld:
-          Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
-          Properties:
-            Path: /hello
-            Method: get
 
   SurveyFunction:
     Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction

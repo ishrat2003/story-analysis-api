@@ -154,3 +154,10 @@ not all numpy version are installable in lamda.
 https://github.com/pbegle/aws-lambda-py3.6-pandas-numpy
 
 pip install nltk -t .
+
+
+docker run -it --rm lambci/lambda:build-python3.6 bash
+docker cp <CONTAINER_ID>:/root/ipopt-lib.zip ~/Downloads/
+
+
+docker cp 565355c012e1:/var/task/regex .

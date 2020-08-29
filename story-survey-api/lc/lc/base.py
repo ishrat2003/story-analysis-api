@@ -2,10 +2,6 @@ import re, sys
 from nltk import word_tokenize, pos_tag
 from nltk.stem.porter import PorterStemmer
 import utility
-from sklearn.cluster import KMeans
-import matplotlib as mpl
-import matplotlib.pyplot as plt
-from matplotlib.pylab import rcParams
 import operator
 
 class Base():
@@ -133,30 +129,6 @@ class Base():
 		if self.display:
 			print(self.filteredWords)
 		return self.sentences
-
-
-	def displayPlot(self, fileName):
-		#rcParams['figure.figsize']=15,10
-		mpl.rcParams.update({'font.size': 15})
-		points = self.getPoints()
-		if not points:
-			print('No points to display')
-			return
-	
-		plt.figure(figsize=(20, 20))  # in inches(x, y, s=None, c=None, marker=None, cmap=None, norm=None, vmin=None, vmax=None, alpha=None, linewidths=None, verts=None, edgecolors=None, *, data=None, **kwargs)[source]
-		for point in points:
-			plt.scatter(point['x'], point['y'], c = point['color'])
-			plt.annotate(point['label'], 
-				xy=(point['x'], point['y']), 
-				xytext=(5, 2), 
-				textcoords='offset points', 
-				ha='right', 
-				va='bottom')
-				
-		plt.savefig(fileName)
-		print('After saving')
-		plt.show()
-		return
 
 
 	def getPoints(self):

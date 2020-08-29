@@ -3,11 +3,9 @@
 # sys.path.append(packagesPath)
 
 import json
-# import nltk
-# from lc import LC
-import numpy
 import nltk
 nltk.data.path.append("/opt/nltkData")
+from lc import Peripheral
 
 def lambda_lc_handler(event, context):
     eventData = json.loads(event['body']);
