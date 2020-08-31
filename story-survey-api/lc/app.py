@@ -4,14 +4,15 @@
 
 import json
 import nltk
-nltk.data.path.append("/opt/nltkData")
-from lc import Peripheral
+nltk.data.path.append("/var/task/resources/nltkData")
+from topic.local_topic import LocalTopic
 
 def lambda_lc_handler(event, context):
     eventData = json.loads(event['body']);
+    localTopicAnalyzer = LocalTopic()
     return {
         "statusCode": 200,
         "body": json.dumps({
-            "contributors": eventData['title']
-        }),
+            "topics": localTopicAnalyzer.get(eventData['content'])
+        })
     }

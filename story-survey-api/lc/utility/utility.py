@@ -34,7 +34,7 @@ class Utility():
 
 	@staticmethod
 	def getStopWords():
-		path = File.join(os.path.abspath(__file__ + "/../../resources/"), 'stopwords.txt')
+		path = File.join(os.path.abspath(__file__ + "/../../resources/"), "nltkData/corpora/stopwords/english")
 		file = File(path)
 		stopWords = re.split('[\n]', file.read())
 		path = File.join(os.path.abspath(__file__ + "/../../resources/"), 'customStopWords.txt')
