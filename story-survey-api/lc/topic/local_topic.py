@@ -22,8 +22,8 @@ class LocalTopic(CWR):
     
     
     def _addPriorityWords(self, word):
-        # if word['score'] < self.maxAllowedScore:
-        #     return
+        if word['score'] < self.maxAllowedScore:
+            return
 
         displayName = self._getDisplayName(word)
         for typeName in self.wordPosGroups.keys():
@@ -39,7 +39,7 @@ class LocalTopic(CWR):
         return
     
     def _getDisplayName(self, word):
-        return word['pure_word'] + ' - ' + word['score']
+        return word['pure_word'] + ' - ' + str(word['score'])
     
     def _reset(self):
         super()._reset()

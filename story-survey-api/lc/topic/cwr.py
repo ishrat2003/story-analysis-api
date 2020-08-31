@@ -45,7 +45,6 @@ class CWR(Word):
 		if totalWords == 0:
 			return
 
-		self.setMaxAllowedRadius(allowedScoreRatio)
 		currentTheta = 0
 		unitTheta = 360 / totalWords
 
