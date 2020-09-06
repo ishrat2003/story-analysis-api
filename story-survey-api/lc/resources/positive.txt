@@ -74,6 +74,8 @@ afordable
 agile
 agilely
 agility
+agree
+agreed
 agreeable
 agreeableness
 agreeably
@@ -2004,3 +2006,5 @@ zeal
 zenith
 zest
 zippy
+funding
+fund
