@@ -40,7 +40,6 @@ class Utility():
 		path = File.join(os.path.abspath(__file__ + "/../../resources/"), 'customStopWords.txt')
 		file = File(path)
 		customStopWords = re.split('[\n]', file.read())
-
 		return Utility.union(stopWords, customStopWords)
 
 	@staticmethod

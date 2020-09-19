@@ -1,3 +1,4 @@
+import re
 from .cwr import CWR
 
 class LocalTopic(CWR):
@@ -5,6 +6,10 @@ class LocalTopic(CWR):
     def __init__(self):
         super().__init__()
         return
+    
+    def getNgrams(self, text, highestNgrams):
+        validNgrams  = []
+        return text
     
     def get(self, text, allowedScoreRatio = 0.1):
         self._reset()
@@ -16,9 +21,9 @@ class LocalTopic(CWR):
         
         for word in self.wordsInfo.keys():
             self._addPriorityWords(self.wordsInfo[word])
-        
-        topics = self.filteredWordsByType
-        return self.getTopicsToDisplay()
+
+        self.filteredWordsByType['proper_noun'] = self.properNouns
+        return [self.filteredWordsByType, self.getTopicsToDisplay()]
     
     def getTopicsToDisplay(self, limit = 5):
         wordsToDisplay = []
@@ -41,11 +46,13 @@ class LocalTopic(CWR):
 
         if word['stemmed_word'] in self.positiveWords:
             self.filteredWordsByType['positive'].append(word)
-            self.filteredWordsByType[typeName].pop()
+            if self.filteredWordsByType[typeName]:
+                self.filteredWordsByType[typeName].pop()
 
         if word['stemmed_word'] in self.negativeWords:
             self.filteredWordsByType['negative'].append(word)
-            self.filteredWordsByType[typeName].pop()
+            if self.filteredWordsByType[typeName]:
+                self.filteredWordsByType[typeName].pop()
         return
     
     def _getDisplayName(self, word):
@@ -62,3 +69,8 @@ class LocalTopic(CWR):
         for type in ['proper_noun', 'noun', 'adjective', 'adverb', 'verb', 'positive', 'negative']:
             self.filteredWordsByType[type] = []
         return
+    
+    
+    def __getCount(self, value, text):
+        list = re.findall(value, value, text)
+        return len(list)
