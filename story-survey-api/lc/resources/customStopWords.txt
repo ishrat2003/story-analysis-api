@@ -42,3 +42,4 @@ however
 whenever
 while
 though
+'s

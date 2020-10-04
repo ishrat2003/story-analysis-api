@@ -1,11 +1,11 @@
-import re, operator
+import re, operator, math
 from nltk import word_tokenize, pos_tag
 from nltk.stem.porter import PorterStemmer
 import utility
 
 class LCStory():
     
-    def __init__(self, filter = 20):
+    def __init__(self, filter = 0):
         self.stopWords = utility.Utility.getStopWords()
         self.punctuationTypes = ['.', '?', '!']
         self.stemmer = PorterStemmer()
@@ -15,6 +15,7 @@ class LCStory():
         self.filter = filter
         self.positiveWords = utility.Utility.getPositiveWords()
         self.negativeWords = utility.Utility.getNegativeWords()
+        self.splits = 5
         return
     
     def setPositionContributingFactor(self, contributingFactor):
@@ -29,10 +30,66 @@ class LCStory():
         self.__reset(text)
         self.setProspectiveProperNouns()
         self.setSentences()
-        words = self.sort('position_weight_forward')
+        # pwfWords = self.sort('position_weight_forward')
+        # self.data['sorted_words']['position_weight_forward'] = self.getDisplayByGroup(pwfWords, 'position_weight_forward', 90)
         
-        self.data['sorted_words'] = self.getDisplayByGroup(words, 'position_weight_forward')
+        # pwbWords = self.sort('position_weight_backward')
+        # self.data['sorted_words']['position_weight_backward'] = self.getDisplayByGroup(pwbWords, 'position_weight_backward', 90)
+        
+        # words = self.sort('occurance_weight')
+        # self.data['sorted_words']['occurance_weight'] = self.getDisplayByGroup(words, 'occurance_weight', 0)
+        
+        # words = self.sort('count')
+        # self.data['sorted_words']['count'] = self.getDisplayByGroup(words, 'count', 2)
+        
+        # words = self.sort('first_block')
+        # self.data['sorted_words']['first_block'] = self.getDisplayByGroup(words, 'first_block', 0)
+
+        self.loadAnalyzedWords()
         return self.data
+    
+    def loadAnalyzedWords(self):
+        pwfWords = self.sort('position_weight_forward')
+        pwbWords = self.sort('position_weight_backward')
+        
+        if not len(pwfWords) or not len(pwbWords):
+            return
+        
+        analyzedKeys = self.data['story_words_keys']
+        analyzedKeys = self.getKeys(pwfWords, analyzedKeys, 'position_weight_forward')
+        
+        for wordKey in pwfWords.keys():
+            word = pwfWords[wordKey]
+            if ((len(word['blocks']) >= math.ceil(self.splits / 2)) and (wordKey not in analyzedKeys)):
+                analyzedKeys.append(wordKey)
+        
+        analyzedKeys = self.getKeys(pwbWords, analyzedKeys, 'position_weight_backward')
+        self.data['story_words_keys'] = analyzedKeys
+        
+        for key in analyzedKeys:
+            word = self.data['wordsInfo'][key]
+            self.data['story_words'].append(word)
+            if word['type'] in ['NNP', 'NNPS']:
+                display = word['pure_word'][0].upper() + word['pure_word'][1:]
+                if display not in self.data['topic_words']:
+                    self.data['topic_words'].append(display)
+                    
+        self.data['total_topic_words'] = len(self.data['topic_words'])
+        self.data['total_story_words'] = len(self.data['story_words'])
+        return
+    
+    def getKeys(self, words, wordKeys, key = 'position_weight_forward', minItems = 10, minWeights = 2):
+        totalWeightsConsidered = []
+        for wordKey in words.keys():
+            if (len(totalWeightsConsidered) > minWeights) and (len(wordKeys) > minItems):
+                break
+            
+            if wordKey not in wordKeys:
+                wordKeys.append(wordKey)
+                if words[wordKey][key] not in totalWeightsConsidered:
+                    totalWeightsConsidered.append(words[wordKey][key])
+                
+        return wordKeys
     
     def setProspectiveProperNouns(self):
         if len(self.properNouns.keys()):
@@ -64,6 +121,7 @@ class LCStory():
         
         sentences = self.__getRawSentences(self.text)
         self.data['total_sentences'] = len(sentences)
+        self.data['threshold'] = math.ceil(self.data['total_sentences'] / self.splits)
         currentPositionValue = self.data['total_sentences']
         self.data['total_words'] += self.__getTotalWords()
         
@@ -77,7 +135,9 @@ class LCStory():
                 (word, type) = word
                 self._addWordInfo(word, type, currentPositionValue)
             
+            
             currentPositionValue -= 1
+            #self.data['sentences_with_type'] += ' .'
             
         self.data['sentences'] = sentences
         self.data['after_filter_total_words'] = len(self.data['wordsInfo'].keys())
@@ -91,29 +151,37 @@ class LCStory():
         sortedWords = {}
         contributors = self.data['wordsInfo'].values()
 
-        for value in sorted(contributors, key=operator.itemgetter(attribute), reverse=True):
+        
+        for value in sorted(contributors, key=operator.itemgetter(attribute, 'count'), reverse=True):
             sortedWords[value['stemmed_word']] = value
 
         return sortedWords
     
-    def getDisplayByGroup(self, words, attribute = 'score'):
+    def  getDisplayByGroup(self, words, attribute = 'score', min = 95):
         wordsToDisplay = {}
         for word in words:
             type = words[word]['color_group']
             if type not in wordsToDisplay.keys():
                 wordsToDisplay[type] = []
-
-            item = words[word]['pure_word'] + '(' + str(words[word][attribute]) + ')'  + '(' + str(words[word]['count']) + ')'
-            wordsToDisplay[type].append(item)
+            
+            if words[word][attribute] >= min:
+                item = words[word]['pure_word'] \
+                + '(' + str(words[word][attribute]) + ')' \
+                + '(' + ','.join(str(x) for x in words[word]['blocks']) + ')' \
+                + '(' + str(words[word]['position_weight_forward']) + ')' \
+                + '(' + str(words[word]['position_weight_backward']) + ')' \
+                + '(' + str(words[word]['count']) + ')'
+                
+                wordsToDisplay[type].append(item)
         return wordsToDisplay
     
     def _addWordInfo(self, word, type, currentPositionValue):
         if type not in self.allowedPOSTypes:
+            # print(word, '    ', type)
             return
 
         if word in self.stopWords:
             return
-        
         wordLower = word.lower()
         wordKey = self.stemmer.stem(wordLower)
         localWordInfo = {}
@@ -121,14 +189,27 @@ class LCStory():
         localWordInfo['pure_word'] = word
         localWordInfo['stemmed_word'] = wordKey
         
+        #self.data['sentences_with_type'] += ' ' + type + '##' + wordKey + ' '
+        
         if localWordInfo['stemmed_word'] in self.data['wordsInfo'].keys():
             localWordInfo = self.data['wordsInfo'][wordKey]
+            localWordInfo['count'] += 1
             localWordInfo['position_weight_backward'] = ((self.data['total_sentences'] - currentPositionValue) / self.data['total_sentences']) * 100
-            localWordInfo['position_weight'] = (localWordInfo['position_weight_forward'] + localWordInfo['position_weight_backward']) / 2
-            localWordInfo['score'] = (self.positionContributingFactor * localWordInfo['position_weight']
-                + self.occuranceContributingFactor * localWordInfo['occurance_weight']) / 2
+            
+            blockNumber = (currentPositionValue // self.data['threshold'])
+            if blockNumber not in localWordInfo['blocks']:
+                localWordInfo['blocks'].append(blockNumber)
+                
             self.data['wordsInfo'][wordKey] = localWordInfo
+            if len(localWordInfo['blocks']) == self.splits:
+                if wordKey not in self.data['story_words_keys']:
+                    self.data['story_words_keys'].append(wordKey)
             return
+        
+        
+        blockNumber = (currentPositionValue // self.data['threshold'])
+        localWordInfo['blocks'] = [blockNumber]
+        localWordInfo['first_block'] = blockNumber
         
         isProperNoun = False
         if (type in ['NNP', 'NNPS']):
@@ -141,14 +222,12 @@ class LCStory():
         localWordInfo['first_position'] = currentPositionValue
         localWordInfo['position_weight_forward'] = (currentPositionValue / self.data['total_sentences']) * 100
         localWordInfo['position_weight_backward'] = ((self.data['total_sentences'] - currentPositionValue) / self.data['total_sentences']) * 100
-        localWordInfo['position_weight'] = (localWordInfo['position_weight_forward'] + localWordInfo['position_weight_backward']) / 2
-        localWordInfo['count'] = self.__getCount(wordLower)
+        #localWordInfo['count'] = self.__getCount(wordKey)
+        localWordInfo['count'] = 1
         localWordInfo['occurance_weight'] = (localWordInfo['count'] / self.data['total_words']) * 100
-        localWordInfo['score'] = (self.positionContributingFactor * localWordInfo['position_weight']
-            + self.occuranceContributingFactor * localWordInfo['occurance_weight']) / 2
+        localWordInfo['score'] = (self.positionContributingFactor * localWordInfo['position_weight_forward']
+            + self.occuranceContributingFactor * localWordInfo['count'])
         
-        if localWordInfo['score'] < self.filter:
-            return
         
         if isProperNoun:
             self.data['proper_nouns'].append(localWordInfo['pure_word'])
@@ -181,7 +260,7 @@ class LCStory():
         return re.split("\n|#END#|!|\?", text)
     
     def __getCount(self, value):
-        list = re.findall(value, self.text, flags=re.IGNORECASE)
+        list = re.findall('\s' + value, self.text, flags=re.IGNORECASE)
         return len(list)
     
     def __getTotalWords(self):
@@ -196,9 +275,16 @@ class LCStory():
             'total_words': 0,
             'after_filter_total_words': 0,
             'total_sentences': 0,
+            'threshold': 0,
+            'total_topic_words': 0,
+            'topic_words': [],
+            'total_story_words': 0,
+            'story_words': [],
+            'story_words_keys': [],
             'proper_nouns': [],
-            'sorted_words': [],
-            'sentences': [],
+            'sorted_words': {},
+            'sentences': '',
+            #'sentences_with_type': '',
             'wordsInfo': {}
         }
         return
@@ -243,9 +329,11 @@ class LCStory():
     def __loadGroups(self):
         self.wordPosGroups = {}
         self.wordPosGroups['noun'] = ['NN', 'NNS', 'NNP', 'NNPS']
-        self.wordPosGroups['adjective'] = ['JJ', 'JJR', 'JJS']
-        self.wordPosGroups['adverb'] = ['RB', 'RBR', 'RBS']
+        #self.wordPosGroups['adjective'] = ['JJ', 'JJR', 'JJS']
+        #self.wordPosGroups['adverb'] = ['RB', 'RBR', 'RBS']
         self.wordPosGroups['verb'] = ['VB', 'VBD', 'VBG', 'VBN', 'VBP', 'VBZ']
+        #self.wordPosGroups['combined'] = ['NN', 'NNS', 'NNP', 'NNPS', 'VB', 'VBD', 'VBG', 'VBN', 'VBP', 'VBZ', 'JJ', 'JJR', 'JJS']
+        # self.wordPosGroups['other'] = ['IN', 'TO']
         
         self.allowedPOSTypes = []
         posGroupKeys = self.wordPosGroups.keys()
