@@ -35,7 +35,6 @@ Globals:
       AllowOrigin: "'*'"
     
 Resources:
-
   P36NumpyPandaLayer:
     Type: AWS::Serverless::LayerVersion
     Properties:

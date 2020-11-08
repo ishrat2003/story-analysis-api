@@ -13,11 +13,12 @@ class SurveyItem:
         print(self.dynamodb.tables.all())
         self.errors = []
         self.attributes = [
-            'browserId', 'email', 'profession',
-            'link', 'title', 'raw_text', 'context',
-            'vizualization', 'vizualization_rate', 'is_visualization_useful',
-            'generated_story', 'story_rate', 'is_story_useful',
-            'suggested_story'
+            'user_code', 
+            'link', 'title', 
+            'useful', 'topics',
+            'story', 'use_as_example_for_lc',
+            'use_as_example_for_fact',
+            'use_as_example_for_series'
         ]
         return
 
@@ -52,7 +53,7 @@ class SurveyItem:
         validData['environment'] = str(os.environ['ENVIRONMENT_NAME'])
 
         for attribute in self.attributes:
-            if ((attribute not in data.keys()) or not data[attribute]):
+            if (attribute not in data.keys()):
                 self.errors.append(attribute + ' is required')
             else:
                 validData[attribute] = str(data[attribute])

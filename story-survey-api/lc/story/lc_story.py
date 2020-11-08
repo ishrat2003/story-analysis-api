@@ -16,6 +16,7 @@ class LCStory():
         self.positiveWords = utility.Utility.getPositiveWords()
         self.negativeWords = utility.Utility.getNegativeWords()
         self.splits = 5
+        self.minCharLength = 1
         return
     
     def setPositionContributingFactor(self, contributingFactor):
@@ -57,10 +58,11 @@ class LCStory():
         
         analyzedKeys = self.data['story_words_keys']
         analyzedKeys = self.getKeys(pwfWords, analyzedKeys, 'position_weight_forward')
+        print(analyzedKeys)
         
         for wordKey in pwfWords.keys():
             word = pwfWords[wordKey]
-            if ((len(word['blocks']) >= math.ceil(self.splits / 2)) and (wordKey not in analyzedKeys)):
+            if ((len(word['blocks']) >= math.floor(self.splits / 2)) and (wordKey not in analyzedKeys)):
                 analyzedKeys.append(wordKey)
         
         analyzedKeys = self.getKeys(pwbWords, analyzedKeys, 'position_weight_backward')
@@ -176,7 +178,7 @@ class LCStory():
         return wordsToDisplay
     
     def _addWordInfo(self, word, type, currentPositionValue):
-        if type not in self.allowedPOSTypes:
+        if (type not in self.allowedPOSTypes) or (len(word) <= self.minCharLength):
             # print(word, '    ', type)
             return
 
@@ -190,13 +192,13 @@ class LCStory():
         localWordInfo['stemmed_word'] = wordKey
         
         #self.data['sentences_with_type'] += ' ' + type + '##' + wordKey + ' '
+        blockNumber = (currentPositionValue // self.data['threshold'])
         
         if localWordInfo['stemmed_word'] in self.data['wordsInfo'].keys():
             localWordInfo = self.data['wordsInfo'][wordKey]
             localWordInfo['count'] += 1
             localWordInfo['position_weight_backward'] = ((self.data['total_sentences'] - currentPositionValue) / self.data['total_sentences']) * 100
             
-            blockNumber = (currentPositionValue // self.data['threshold'])
             if blockNumber not in localWordInfo['blocks']:
                 localWordInfo['blocks'].append(blockNumber)
                 
@@ -207,7 +209,6 @@ class LCStory():
             return
         
         
-        blockNumber = (currentPositionValue // self.data['threshold'])
         localWordInfo['blocks'] = [blockNumber]
         localWordInfo['first_block'] = blockNumber
         
@@ -257,7 +258,8 @@ class LCStory():
         text = re.sub(r'([0-9]+)\.([0-9]+)', r'\1##\2', text)
         text = re.sub(r'\.', r'#END#', text)
         text = re.sub(r'([0-9]+)##([0-9]+)', r'\1.\2', text)
-        return re.split("\n|#END#|!|\?", text)
+        text = re.split("\n|#END#|!|\?", text)
+        return list(filter(lambda sentence: len(sentence) > 0, text))
     
     def __getCount(self, value):
         list = re.findall('\s' + value, self.text, flags=re.IGNORECASE)
