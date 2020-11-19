@@ -2,7 +2,7 @@ echo "Starting local environment"
 echo -e "----------------------------\n"
 NETWORK_NAME='sam-net-story-survey-api'
 DB_CONTAINER_NAME='sam-db-story-survey-api'
-LOCAL_DB_PATH='/database/dynamodb'
+LOCAL_DB_PATH='./database/dynamodb'
 
 pip3 install -U nltk
 python3 -m nltk.downloader punkt -d ./story-survey-api/nltk

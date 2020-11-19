@@ -13,12 +13,18 @@ class SurveyItem:
         print(self.dynamodb.tables.all())
         self.errors = []
         self.attributes = [
-            'user_code', 
-            'link', 'title', 
-            'useful', 'topics',
-            'story', 'use_as_example_for_lc',
-            'use_as_example_for_fact',
-            'use_as_example_for_series'
+            'user_code',
+            'story_source',
+            'story_date',
+            'story_link', 
+            'story_title', 
+            'news_topics', 
+            'who',
+            'what',
+            'where',
+            'why', 
+            'when',
+            'confidence'
         ]
         return
 
@@ -26,16 +32,30 @@ class SurveyItem:
         table = self.dynamodb.Table(self.tableName)
         print(table)
         validData = self.getBind(data)
+        
         if not len(self.errors):
-            response = table.put_item(
-                Item=validData
-            )
-            print(response)
+            expression = 'set ';
+            expressionAttributes = {}
+            divider = '';
+            for key in validData.keys():
+                expressionAttributes[':' + key] = validData[key]
+                expression += divider + key + ' = :' + key
+                divider = ', '
+            response = table.update_item(
+                Key={
+                    'user_code': validData['user_code'],
+                    'story_link': validData['story_link']
+                },
+                UpdateExpression = "set " + expression,
+                ExpressionAttributeValues = validData,
+                ReturnValues = "UPDATED_NEW"
+            );
             return  {
                 "statusCode": 200,
-                "body": json.dumps({'message': 'ok'})
+                "body": json.dumps(response)
             }
-        data['errors'] = self.errors
+            
+        data['errors'] = '<br>'.join(self.errors)
         return {
             "statusCode": 200,
             "body": json.dumps(data)
@@ -46,15 +66,13 @@ class SurveyItem:
         validData = {}
         now = datetime.now()
         hostname = socket.gethostname()
-
         validData['id'] = str(uuid.uuid4())
         validData['created'] = str(now.strftime("%d/%m/%Y %H:%M:%S"))
-        validData['ip'] = str(socket.gethostbyname(hostname))
         validData['environment'] = str(os.environ['ENVIRONMENT_NAME'])
 
         for attribute in self.attributes:
-            if (attribute not in data.keys()):
-                self.errors.append(attribute + ' is required')
+            if (attribute not in data.keys()) or not data[attribute]:
+                self.errors.append(attribute[0].upper() + attribute[1:] + ' is required.')
             else:
                 validData[attribute] = str(data[attribute])
 
