@@ -5,4 +5,4 @@ def save_handler(event, context):
     eventData = json.loads(event['body'])
     print(eventData)
     survey = SurveyItem()
-    return survey.put(eventData)
+    return survey.save(eventData)

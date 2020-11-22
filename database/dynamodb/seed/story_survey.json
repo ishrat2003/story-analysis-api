@@ -1,61 +1,27 @@
 {
     "AttributeDefinitions": [
         {
-            "AttributeName": "id",
-            "AttributeType": "S"
-        },
-        {
-            "AttributeName": "created",
+            "AttributeName": "story_link",
             "AttributeType": "S"
         },
         {
             "AttributeName": "user_code",
-            "AttributeType": "S"
-        },
-        {
-            "AttributeName": "story_link",
             "AttributeType": "S"
         }
     ],
     "TableName": "story_survey",
     "KeySchema": [
         {
-            "AttributeName": "id",
+            "AttributeName": "story_link",
             "KeyType": "HASH"
         },
-        {
-            "AttributeName": "created",
-            "AttributeType": "RANGE"
+        { 
+            "AttributeName": "user_code",
+            "KeyType": "RANGE"
         }
     ],
     "ProvisionedThroughput": {
         "ReadCapacityUnits": 5,
         "WriteCapacityUnits": 5
-    },
-    "LocalSecondaryIndexes": [
-        { 
-            "IndexName": "User",
-            "KeySchema": [ 
-                { 
-                    "AttributeName": "user_code",
-                    "KeyType": "HASH"
-                }
-            ],
-            "Projection": {
-                "ProjectionType": "ALL"
-            }
-        },
-        { 
-            "IndexName": "Story",
-            "KeySchema": [ 
-                { 
-                    "AttributeName": "story_link",
-                    "KeyType": "HASH"
-                }
-            ],
-            "Projection": {
-                "ProjectionType": "ALL"
-            }
-        }
-    ]
+    }
 }
