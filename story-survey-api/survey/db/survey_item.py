@@ -86,7 +86,7 @@ class SurveyItem:
     
         return {
                 "statusCode": 200,
-                "body": json.dumps(response['Item'])
+                "body": json.dumps({'message': 'Record saved successfully.'})
             }
 
     def update(self, validData):
@@ -113,7 +113,7 @@ class SurveyItem:
             if response: 
                 return {
                     "statusCode": 200,
-                    "body": json.dumps({'message': 'Record saved successfully.'})
+                    "body": json.dumps({'message': 'Record UPDATED successfully.'})
                 }
         except Exception as e:
             print(e)

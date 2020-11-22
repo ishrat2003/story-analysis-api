@@ -2,7 +2,7 @@ echo "Starting local environment"
 echo -e "----------------------------\n"
 NETWORK_NAME='sam-net-story-survey-api'
 DB_CONTAINER_NAME='sam-db-story-survey-api'
-LOCAL_DB_PATH='./database/dynamodb'
+LOCAL_DB_PATH='/database/dynamodb'
 
 pip3 install -U nltk
 python3 -m nltk.downloader punkt -d ./story-survey-api/nltk
@@ -26,7 +26,8 @@ echo "Stopping dynamodb container $DB_CONTAINER_NAME"
 docker rm "$DB_CONTAINER_NAME"
 
 echo "Starting dynamodb container $DB_CONTAINER_NAME"
-docker run -d -v "$PWD$LOCAL_DB_PATH:/data" -p 8000:8000 --network "$NETWORK_NAME" --name "$DB_CONTAINER_NAME" amazon/dynamodb-local 
+echo "$PWD$LOCAL_DB_PATH/data:/home/dynamodblocal/data"
+docker run -d -v "$PWD$LOCAL_DB_PATH/data:/home/dynamodblocal/data" -p 8000:8000 --network "$NETWORK_NAME" --name "$DB_CONTAINER_NAME" amazon/dynamodb-local -jar DynamoDBLocal.jar -dbPath '/home/dynamodblocal/data'
 
 echo -e "\n3. Starting application"
 echo -e "----------------------------\n"

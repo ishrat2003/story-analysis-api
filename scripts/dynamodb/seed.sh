@@ -1,3 +1,5 @@
+LOCAL_DB_PATH='./database/dynamodb'
+
 # 
 # aws dynamodb --endpoint-url http://localhost:8000 --region eu-west-1 delete-table --table-name story_survey
 
