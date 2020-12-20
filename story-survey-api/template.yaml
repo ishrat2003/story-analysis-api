@@ -6,6 +6,14 @@ Description: >
   Sample SAM Template for story-survey-api
 
 Parameters:
+  TABLE_NAME:
+    Type: String
+    Default: 'localStoryReview'
+    Description: (Required) The name of the new DynamoDB table you want to create and save to. Minimum 3 characters
+    MinLength: 3
+    MaxLength: 50
+    AllowedPattern: ^[A-Za-z]+$
+    ConstraintDescription: 'Required parameter. Must be characters only. No numbers allowed.'
 
   ENVIRONMENT_NAME:
     Description: 'Environment name'
@@ -35,39 +43,73 @@ Globals:
       AllowOrigin: "'*'"
     
 Resources:
-  P36NumpyPandaLayer:
-    Type: AWS::Serverless::LayerVersion
+  DynamoDBTable:
+    Type: 'AWS::DynamoDB::Table'
     Properties:
-        LayerName: P36NumpyPandaLayer
-        Description: P36NumpyPanda (Python 3.6, numpy, panda, regex)
-        ContentUri: layers/P36NumpyPanda
-        CompatibleRuntimes:
-          - python3.6
+      TableName: !Ref TABLE_NAME
+      AttributeDefinitions:
+        - AttributeName: story_link
+          AttributeType: S
+        - AttributeName: user_code
+          AttributeType: S
+      KeySchema:
+        - AttributeName: story_link
+          KeyType: "HASH"
+        - AttributeName: user_code
+          KeyType: "HASH"
+      ProvisionedThroughput: 
+        ReadCapacityUnits: 1
+        WriteCapacityUnits: 1
 
-  NltkLayer:
-    Type: AWS::Serverless::LayerVersion
-    Properties:
-        LayerName: NltkLayer
-        Description: Nltk toolkit Layer (nltk)
-        ContentUri: layers/NltkBasic
-        CompatibleRuntimes:
-          - python3.6
+  # P36NumpyPandaLayer:
+  #   Type: AWS::Serverless::LayerVersion
+  #   Properties:
+  #       LayerName: P36NumpyPandaLayer
+  #       Description: P36NumpyPanda (Python 3.6, numpy, panda, regex)
+  #       ContentUri: layers/P36NumpyPanda
+  #       CompatibleRuntimes:
+  #         - python3.6
+
+  # NltkLayer:
+  #   Type: AWS::Serverless::LayerVersion
+  #   Properties:
+  #       LayerName: NltkLayer
+  #       Description: Nltk toolkit Layer (nltk)
+  #       ContentUri: layers/NltkBasic
+  #       CompatibleRuntimes:
+  #         - python3.6
+
+  # NltkLayer:
+  #   Type: AWS::Serverless::LayerVersion
+  #   Properties:
+  #     LayerName: NltkLayerNltkLayer
+  #     Description: NltkLayer
+  #     ContentUri: arn:aws:lambda:eu-west-1:540686626730:layer:StoryLayer:3
+  #     CompatibleRuntimes:
+  #       - python3.8
+
 
   SurveyFunction:
     Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
     Properties:
       CodeUri: survey/
       Handler: app.save_handler
-      Runtime: python3.6
+      Runtime: python3.8
+      Layers:
+        - arn:aws:lambda:eu-west-1:540686626730:layer:StoryLayer:6
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref TABLE_NAME
       Environment:
         Variables:
-          TABLE_NAME: story_survey
+          TABLE_NAME: !Ref TABLE_NAME
       Events:
         survey:
           Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
           Properties:
             Path: /survey
             Method: post
+            
 
   LcFunction:
     Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
@@ -75,9 +117,8 @@ Resources:
       CodeUri: lc/
       Handler: app.lambda_lc_handler
       Layers:
-        - !Ref P36NumpyPandaLayer
-        - !Ref NltkLayer
-      Runtime: python3.6
+        - arn:aws:lambda:eu-west-1:540686626730:layer:StoryLayer:6
+      Runtime: python3.8
       Events:
         lc:
           Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
@@ -89,16 +130,6 @@ Outputs:
   # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function
   # Find out more about other implicit resources you can reference within SAM
   # https://github.com/awslabs/serverless-application-model/blob/master/docs/internals/generated_resources.rst#api
-  HelloWorldApi:
-    Description: "API Gateway endpoint URL for Prod stage for Hello World function"
-    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/hello/"
-  HelloWorldFunction:
-    Description: "Hello World Lambda Function ARN"
-    Value: !GetAtt HelloWorldFunction.Arn
-  HelloWorldFunctionIamRole:
-    Description: "Implicit IAM Role created for Hello World function"
-    Value: !GetAtt HelloWorldFunctionRole.Arn
-
   LcApi:
     Description: "API Gateway endpoint URL for Prod stage for Hello World function"
     Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/lc/"
@@ -112,9 +143,9 @@ Outputs:
   SurveyApi:
     Description: "API Gateway endpoint URL for Prod stage for Hello World function"
     Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/lc/"
-    SurveyFunction:
+  SurveyFunction:
     Description: "Survey Lambda Function ARN"
     Value: !GetAtt SurveyFunction.Arn
-    SurveyIamRole:
+  SurveyIamRole:
     Description: "Implicit IAM Role created for Survey function"
     Value: !GetAtt SurveyFunctionRole.IamRoleArn

@@ -161,3 +161,10 @@ docker cp <CONTAINER_ID>:/root/ipopt-lib.zip ~/Downloads/
 
 
 docker cp 565355c012e1:/var/task/regex .
+
+Layers: pip3 install --target="story-survey-api/layers/python" nltk
+pip3 install --target="story-survey-api/layers/python" -r story-survey-api/lc/requirements.txt 
+
+References:
+
+https://aws.amazon.com/premiumsupport/knowledge-center/lambda-layer-simulated-docker/

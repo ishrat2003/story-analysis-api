@@ -1,7 +1,8 @@
-import re, operator, math
+import operator, math
 from nltk import word_tokenize, pos_tag
 from nltk.stem.porter import PorterStemmer
 import utility
+import regex as re
 
 class LCStory():
     

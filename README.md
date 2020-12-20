@@ -30,3 +30,7 @@ aws sam-db-story-survey-api describe-table --table-name=story_survey
 Execute seed
 
 aws sam-db-story-survey-api create-table --cli-input-json /database/dynamodb/seed/story_survey.json
+
+===
+
+docker build -t aws-lambda-python-latest:latest .

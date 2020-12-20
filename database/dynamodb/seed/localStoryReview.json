@@ -1,4 +1,5 @@
 {
+    "TableName": "localStoryReview",
     "AttributeDefinitions": [
         {
             "AttributeName": "story_link",
@@ -9,7 +10,6 @@
             "AttributeType": "S"
         }
     ],
-    "TableName": "story_survey",
     "KeySchema": [
         {
             "AttributeName": "story_link",
