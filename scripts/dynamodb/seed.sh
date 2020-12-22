@@ -1,6 +1,5 @@
-LOCAL_DB_PATH='./database/dynamodb'
+#!/bin/bash
+source "$PWD/scripts/dynamodb/common.sh"
 
-# 
-# aws dynamodb --endpoint-url http://localhost:8000 --region eu-west-1 delete-table --table-name story_survey
-
-aws dynamodb --endpoint-url http://localhost:8000 --region eu-west-1 create-table --cli-input-json file:///Users/ishratsami/Workspace/backend-frontend/Research/MyProjects/story-survey-api/database/dynamodb/seed/localStoryReview.json
+cmd="aws dynamodb $endPoint --region $region create-table --cli-input-json file://$PWD/database/dynamodb/seed/$tableName.json"
+eval $cmd

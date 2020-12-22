@@ -1,4 +1,5 @@
-REGION=$(aws configure get region)
+#!/bin/bash
+source "$PWD/scripts/dynamodb/common.sh"
 
-aws dynamodb list-tables --endpoint-url http://localhost:8000 --region eu-west-1
-
+cmd="aws dynamodb $endPoint --region $region list-tables"
+eval $cmd
