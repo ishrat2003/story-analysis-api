@@ -1,0 +1,108 @@
+AWSTemplateFormatVersion: 2010-09-09
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  story-survey-api
+
+  Sample SAM Template for story-survey-api
+
+# More info about Globals: 
+Globals:
+  Function:
+    # Properties of AWS::Serverless::Function
+    Timeout: 900
+    Environment:
+      Variables:
+        API_NAME: story_survey_api
+        ENVIRONMENT_NAME: "production"
+        DYNAMODB_ENDPOINT: "https://dynamodb.eu-west-1.amazonaws.com"
+        DEFAULT_DYNAMODB_ENDPOINT: "http://host.docker.internal:8000"
+        TABLE_NAME: "localstoryreview"
+  Api:
+    # Properties of AWS::Serverless::Api
+    Cors:
+      AllowMethods: "'GET,OPTIONS'"
+      AllowHeaders: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
+      AllowOrigin: "'*'"
+    
+Resources:
+  DynamoDBTable:
+    Type: 'AWS::DynamoDB::Table'
+    Properties:
+      TableName: 
+        REF: TABLE_NAME
+      AttributeDefinitions:
+        - AttributeName: story_link
+          AttributeType: S
+        - AttributeName: user_code
+          AttributeType: S
+      KeySchema:
+        - AttributeName: story_link
+          KeyType: "HASH"
+        - AttributeName: user_code
+          KeyType: "HASH"
+      ProvisionedThroughput: 
+        ReadCapacityUnits: 1
+        WriteCapacityUnits: 1
+
+  SurveyFunction:
+    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Properties:
+      CodeUri: s3://sam-story-analysis/story_analysis_survey/
+      Handler: app.save_handler
+      Runtime: python3.8
+      Layers:
+        - arn:aws:lambda:eu-west-1:540686626730:layer:StoryLayer:6
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: 
+              REF: TABLE_NAME
+      Events:
+        survey:
+          Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
+          Properties:
+            Path: /survey
+            Method: post
+            
+
+  LcFunction:
+    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Properties:
+      CodeUri: s3://sam-story-analysis/story_analysis_lc/
+      Handler: app.lambda_lc_handler
+      Layers:
+        - arn:aws:lambda:eu-west-1:540686626730:layer:StoryLayer:6
+      Runtime: python3.8
+      Events:
+        lc:
+          Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
+          Properties:
+            Path: /lc
+            Method: post
+
+Outputs:
+  # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function
+  # Find out more about other implicit resources you can reference within SAM
+  # https://github.com/awslabs/serverless-application-model/blob/master/docs/internals/generated_resources.rst#api
+  LcApi:
+    Description: "API Gateway endpoint URL for Prod stage for LC function"
+    Value: "https://story-analysis-api.execute-api.eu-west-1.amazonaws.com/lc/"
+  LcFunction:
+    Description: "Lc Lambda Function ARN"
+    Value: 
+      GETATT: LcFunction.Arn
+  LcIamRole:
+    Description: "Implicit IAM Role created for Lc function"
+    Value:
+      GETATT: LcFunctionRole.IamRoleArn
+
+  SurveyApi:
+    Description: "API Gateway endpoint URL for Prod stage for  Survey function"
+    Value: "https://story-analysis-api.execute-api.eu-west-1.amazonaws.com/survey/"
+  SurveyFunction:
+    Description: "Survey Lambda Function ARN"
+    Value:
+      GETATT: SurveyFunction.Arn
+  SurveyIamRole:
+    Description: "Implicit IAM Role created for Survey function"
+    Value:
+      GETATT: SurveyFunctionRole.IamRoleArn

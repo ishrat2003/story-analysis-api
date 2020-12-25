@@ -1,5 +1,5 @@
 {
-    "TableName": "localStoryReview",
+    "TableName": "localstoryreview",
     "AttributeDefinitions": [
         {
             "AttributeName": "story_link",

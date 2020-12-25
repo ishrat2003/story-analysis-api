@@ -9,9 +9,13 @@ from botocore.exceptions import ClientError
 class SurveyItem:
 
     def __init__(self):
+        self.endPointUrl = os.environ['DYNAMODB_ENDPOINT']
+        if os.environ['ENVIRONMENT_NAME'] == 'local':
+            self.endPointUrl = os.environ['DEFAULT_DYNAMODB_ENDPOINT']
+
         self.tableName = os.environ['TABLE_NAME']
-        self.dynamodb = boto3.resource('dynamodb', endpoint_url=os.environ['DYNAMODB_ENDPOINT'])
-        print(self.dynamodb.tables.all())
+        self.dynamodb = boto3.resource('dynamodb', endpoint_url=self.endPointUrl)
+        # print(self.dynamodb.tables.all())
         self.errors = []
         self.keyAttributes = ['story_link', 'user_code']
         self.attributes = [

@@ -33,5 +33,5 @@ then
    endPoint=" --endpoint-url http://localhost:8000"
 fi
 
-tableName="localStoryReview"
+tableName="localstoryreview"
 region=$(aws configure get region)

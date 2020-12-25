@@ -4,10 +4,12 @@ NETWORK_NAME='sam-net-story-survey-api'
 DB_CONTAINER_NAME='sam-db-story-survey-api'
 LOCAL_DB_PATH='/database/dynamodb'
 
-pip3 install -U nltk
-python3 -m nltk.downloader punkt -d ./story-survey-api/nltk
-python3 -m nltk.downloader averaged_perceptron_tagger -d ./story-survey-api/nltk
-python3 -m nltk.downloader stopwords -d ./story-survey-api/nltk
+sam build --template-file ./story-survey-api/template.yaml
+
+# pip3 install -U nltk
+# python3 -m nltk.downloader punkt -d ./story-survey-api/nltk
+# python3 -m nltk.downloader averaged_perceptron_tagger -d ./story-survey-api/nltk
+# python3 -m nltk.downloader stopwords -d ./story-survey-api/nltk
 
 echo "\n1. Network"
 echo -e "----------------------------\n"

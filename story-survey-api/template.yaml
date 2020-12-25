@@ -1,4 +1,4 @@
-AWSTemplateFormatVersion: '2010-09-09'
+AWSTemplateFormatVersion: 2010-09-09
 Transform: AWS::Serverless-2016-10-31
 Description: >
   story-survey-api
@@ -7,23 +7,24 @@ Description: >
 
 Parameters:
   TABLE_NAME:
-    Type: String
-    Default: 'localStoryReview'
+    Default: "localstoryreview"
+    Type: AWS::SSM::Parameter::Value<String>
     Description: (Required) The name of the new DynamoDB table you want to create and save to. Minimum 3 characters
-    MinLength: 3
-    MaxLength: 50
-    AllowedPattern: ^[A-Za-z]+$
-    ConstraintDescription: 'Required parameter. Must be characters only. No numbers allowed.'
 
   ENVIRONMENT_NAME:
-    Description: 'Environment name'
-    Type: 'AWS::SSM::Parameter::Value<String>'
-    Default: 'Production'
+    Description: Environment name
+    Type: AWS::SSM::Parameter::Value<String>
+    Default: "local"
   
   DYNAMODB_ENDPOINT:
-    Description: 'DynamoDb endpoint'
-    Type: 'AWS::SSM::Parameter::Value<String>'
-    Default: 'http://host.docker.internal:8000'
+    Description: DynamoDb endpoint
+    Type: AWS::SSM::Parameter::Value<String>
+    Default: "https://dynamodb.eu-west-1.amazonaws.com" 
+    
+  DEFAULT_DYNAMODB_ENDPOINT:
+    Description: DynamoDb endpoint
+    Type: AWS::SSM::Parameter::Value<String>
+    Default: "http://host.docker.internal:8000"
 
 # More info about Globals: 
 Globals:
@@ -35,6 +36,8 @@ Globals:
         API_NAME: story_survey_api
         ENVIRONMENT_NAME: !Ref ENVIRONMENT_NAME
         DYNAMODB_ENDPOINT: !Ref DYNAMODB_ENDPOINT
+        DEFAULT_DYNAMODB_ENDPOINT: !Ref DEFAULT_DYNAMODB_ENDPOINT
+        TABLE_NAME: !Ref TABLE_NAME
   Api:
     # Properties of AWS::Serverless::Api
     Cors:
@@ -46,7 +49,8 @@ Resources:
   DynamoDBTable:
     Type: 'AWS::DynamoDB::Table'
     Properties:
-      TableName: !Ref TABLE_NAME
+      TableName: 
+        REF: TABLE_NAME
       AttributeDefinitions:
         - AttributeName: story_link
           AttributeType: S
@@ -71,10 +75,8 @@ Resources:
         - arn:aws:lambda:eu-west-1:540686626730:layer:StoryLayer:6
       Policies:
         - DynamoDBCrudPolicy:
-            TableName: !Ref TABLE_NAME
-      Environment:
-        Variables:
-          TABLE_NAME: !Ref TABLE_NAME
+            TableName: 
+              REF: TABLE_NAME
       Events:
         survey:
           Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
@@ -104,20 +106,24 @@ Outputs:
   # https://github.com/awslabs/serverless-application-model/blob/master/docs/internals/generated_resources.rst#api
   LcApi:
     Description: "API Gateway endpoint URL for Prod stage for LC function"
-    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/lc/"
+    Value: "https://story-analysis-api.execute-api.eu-west-1.amazonaws.com/lc/"
   LcFunction:
     Description: "Lc Lambda Function ARN"
-    Value: !GetAtt LcFunction.Arn
+    Value: 
+      GETATT: LcFunction.Arn
   LcIamRole:
     Description: "Implicit IAM Role created for Lc function"
-    Value: !GetAtt LcFunctionRole.IamRoleArn
+    Value:
+      GETATT: LcFunctionRole.IamRoleArn
 
   SurveyApi:
     Description: "API Gateway endpoint URL for Prod stage for  Survey function"
-    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/survey/"
+    Value: "https://story-analysis-api.execute-api.eu-west-1.amazonaws.com/survey/"
   SurveyFunction:
     Description: "Survey Lambda Function ARN"
-    Value: !GetAtt SurveyFunction.Arn
+    Value:
+      GETATT: SurveyFunction.Arn
   SurveyIamRole:
     Description: "Implicit IAM Role created for Survey function"
-    Value: !GetAtt SurveyFunctionRole.IamRoleArn
+    Value:
+      GETATT: SurveyFunctionRole.IamRoleArn
