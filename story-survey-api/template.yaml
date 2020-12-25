@@ -61,34 +61,6 @@ Resources:
         ReadCapacityUnits: 1
         WriteCapacityUnits: 1
 
-  # P36NumpyPandaLayer:
-  #   Type: AWS::Serverless::LayerVersion
-  #   Properties:
-  #       LayerName: P36NumpyPandaLayer
-  #       Description: P36NumpyPanda (Python 3.6, numpy, panda, regex)
-  #       ContentUri: layers/P36NumpyPanda
-  #       CompatibleRuntimes:
-  #         - python3.6
-
-  # NltkLayer:
-  #   Type: AWS::Serverless::LayerVersion
-  #   Properties:
-  #       LayerName: NltkLayer
-  #       Description: Nltk toolkit Layer (nltk)
-  #       ContentUri: layers/NltkBasic
-  #       CompatibleRuntimes:
-  #         - python3.6
-
-  # NltkLayer:
-  #   Type: AWS::Serverless::LayerVersion
-  #   Properties:
-  #     LayerName: NltkLayerNltkLayer
-  #     Description: NltkLayer
-  #     ContentUri: arn:aws:lambda:eu-west-1:540686626730:layer:StoryLayer:3
-  #     CompatibleRuntimes:
-  #       - python3.8
-
-
   SurveyFunction:
     Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
     Properties:
@@ -131,7 +103,7 @@ Outputs:
   # Find out more about other implicit resources you can reference within SAM
   # https://github.com/awslabs/serverless-application-model/blob/master/docs/internals/generated_resources.rst#api
   LcApi:
-    Description: "API Gateway endpoint URL for Prod stage for Hello World function"
+    Description: "API Gateway endpoint URL for Prod stage for LC function"
     Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/lc/"
   LcFunction:
     Description: "Lc Lambda Function ARN"
@@ -141,8 +113,8 @@ Outputs:
     Value: !GetAtt LcFunctionRole.IamRoleArn
 
   SurveyApi:
-    Description: "API Gateway endpoint URL for Prod stage for Hello World function"
-    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/lc/"
+    Description: "API Gateway endpoint URL for Prod stage for  Survey function"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/survey/"
   SurveyFunction:
     Description: "Survey Lambda Function ARN"
     Value: !GetAtt SurveyFunction.Arn
