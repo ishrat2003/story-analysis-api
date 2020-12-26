@@ -1,3 +1,4 @@
 .aws-sam/*
 database/dynamodb/data/*
 upload/*
+url.txt

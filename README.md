@@ -1,36 +1,15 @@
 # Story survey api
 
-https://itnext.io/creating-aws-lambda-applications-with-sam-dd13258c16dd
+Setup Instruction
 
-https://github.com/heitorlessa/sam-local-python-hot-reloading
+1. Setup aws cli locally with Iam user with required permission
+2. Setup dependent lambda layer
+2. Setup s3 bucket
+3. Setup lambda for lc
+4. Setup dynamodb
+5. Setup lambda for survey
+6. Setup api gateway
+7. Setup api gateway endpoints
 
-import nltk
-import json
-from nltk.tokenize import word_tokenize
-
-nltk.data.path.append("/tmp")
-
-nltk.download("punkt", download_dir = "/tmp")
-
-
-https://medium.com/@gurlgilt/deploying-aws-sam-lambda-api-gateway-dynamodb-and-s3-ad11e619d322
-
-https://github.com/ganshan/sam-dynamodb-local
-
-
-To validate sam template use 
-
-sam validate -t story-survey-api/template.yaml 
-
-
-Description of the table
-
-aws sam-db-story-survey-api describe-table --table-name=story_survey
-
-Execute seed
-
-aws sam-db-story-survey-api create-table --cli-input-json /database/dynamodb/seed/story_survey.json
-
-===
-
-docker build -t aws-lambda-python-latest:latest .
+ToDo:
+- Fix automatic sam deployment issues
