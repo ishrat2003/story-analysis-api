@@ -25,6 +25,8 @@ class SurveyItem:
             'user_code',
             'story_source',
             'story_date',
+            'open_date_time',
+            'close_date_time',
             'story_link', 
             'story_title', 
             'news_topics', 
@@ -33,6 +35,7 @@ class SurveyItem:
             'where_location',
             'why', 
             'when_happened',
+            'summary',
             'confidence'
         ]
         return

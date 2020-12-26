@@ -13,7 +13,7 @@ def lambda_lc_handler(event, context):
     #print(eventData)
     
     localStory = LCStory()
-    concepts = localStory.getConcepts(eventData['content']);
+    concepts = localStory.getConcepts(eventData['title'] + '.' + eventData['content']);
     # localTopicAnalyzer = LocalTopic()
     #raw, topics = localTopicAnalyzer.get(eventData['content'])
     return {

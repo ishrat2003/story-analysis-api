@@ -10,6 +10,9 @@ Setup Instruction
 5. Setup lambda for survey
 6. Setup api gateway
 7. Setup api gateway endpoints
+8. Setup environment variables for lambda
+
+
 
 ToDo:
 - Fix automatic sam deployment issues
