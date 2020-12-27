@@ -15,6 +15,7 @@ class KnowledgeGraph():
         self.objects = {}
         self.categories = {}
         self.links = []
+        self.nodeKeys = []
         return
     
     def getObjects(self):
@@ -28,34 +29,79 @@ class KnowledgeGraph():
     def getCategories(self):
         return self.categories
     
-    def getGraph(self):
-        nodes = []
-        for key in self.objects.keys():
-            nodes.append(self.objects[key])
+    def getGraph(self, words, storyKeys):
+        graphNodes = []
+        graphLinks = []
+        if not len(storyKeys) or not len(words):
+            return {
+                "nodes": graphNodes,
+                "links": graphLinks
+            }
+            
+        storyNodeKeys = []
+        for link in self.links:
+            if (link["type"] in storyKeys) and (link["source"] in storyKeys) and (link["target"] in storyKeys):
+                if link["source"] not in storyNodeKeys:
+                    storyNodeKeys.append(link["source"])
+                if link["target"] not in storyNodeKeys:
+                    storyNodeKeys.append(link["target"]) 
+                graphLinks.append({
+                    "source": storyNodeKeys.index(link["source"]),
+                    "target": storyNodeKeys.index(link["target"]),
+                    "type": words[link["type"]]["pure_word"]
+                })
+                
+        for key in storyNodeKeys:
+            node = {
+                "name": words[key]['pure_word'],
+                "tooltip": "",
+                "label": "",
+                "color": "default",
+                "id": storyNodeKeys.index(key)
+            }
+            if key in self.objects.keys():
+                node["tooltip"] = self.objects[key]["tooltip"]
+                node["label"] = self.objects[key]["label"]
+                node["color"] = self.objects[key]["label"].lower()
+                
+            graphNodes.append(node)
+        
         return {
-            "nodes": nodes,
-            "links": self.links
-        };
+                "nodes": graphNodes,
+                "links": graphLinks
+            }
         
         
     def addLink(self, sentence):
         objects = []
         verbs = []
-        
         for word in sentence:
-            if word['stemmed_word'] in self.objects.keys():
-                objects.append(word['stemmed_word'])
-            elif ((len(objects) == 1) and (word['type'][0] == 'V')):
+            if (len(objects) >= 1) and (word['type'][0] == 'V'):
                 verbs.append(word)
+            else:
+                objects.append(word['stemmed_word'])
 
-            if (len(objects) == 2) and (len(verbs) == 1):
-                verb = verbs.pop()
-                link = {
-                    "source": self.objects[objects.pop(0)]['id'],
-                    "target": self.objects[objects[0]]['id'],
-                    "type": verb['pure_word']
-                }
-                self.links.append(link)
+            if (len(objects) >= 2) and (len(verbs) >= 1):
+                length = len(objects)
+                node1Key = objects[length - 2]
+                node2Key = objects[length - 1]
+                objects = [node2Key]
+                for verb in verbs:
+                    link = {
+                        "source": node1Key,
+                        "target": node2Key,
+                        "type": verb['stemmed_word']
+                    }
+                    
+                    # print(node1Key, '--', node2Key, '--',verb['stemmed_word'])
+                    self.links.append(link)
+                    
+                if node1Key not in self.nodeKeys:
+                    self.nodeKeys.append(node1Key)
+                if node2Key not in self.nodeKeys:
+                    self.nodeKeys.append(node2Key)
+                
+                
         return
         
     
@@ -73,9 +119,8 @@ class KnowledgeGraph():
             if self.isPerson(query.lower()):
                 self.objects[key] = {
                     "name": query,
-                    "description": "Individual",
+                    "tooltip": "Individual",
                     "label": "Person",
-                    "id": len(self.objects)
                 }
                 self.appendCategoryItem("Person", query)
                 return True
@@ -87,9 +132,8 @@ class KnowledgeGraph():
         category = self.getCategory(response['itemListElement'][0]['result'])
         self.objects[key] = {
             "name": query,
-            "description": self.getDescription(response['itemListElement'][0]['result']),
-            "label": category,
-            "id": len(self.objects)
+            "tooltip": self.getDescription(response['itemListElement'][0]['result']),
+            "label": category
         }
         self.appendCategoryItem(category, query)
         

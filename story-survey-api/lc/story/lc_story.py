@@ -50,7 +50,8 @@ class LCStory():
         # self.data['sorted_words']['first_block'] = self.getDisplayByGroup(words, 'first_block', 0)
 
         self.loadAnalyzedWords()
-        self.data['graph'] = self.knowledgeGraphProcessor.getGraph()
+        self.data['graph'] = self.knowledgeGraphProcessor.getGraph(self.data['wordsInfo'], self.data['story_words_keys'])
+        del self.data['wordsInfo']
         return self.data
     
     def loadAnalyzedWords(self):
@@ -84,15 +85,17 @@ class LCStory():
         return
     
     def getKeys(self, words, wordKeys, key = 'position_weight_forward', minItems = 10, minWeights = 2):
-        totalWeightsConsidered = []
+        # totalWeightsConsidered = []
+        initCount = len(wordKeys)
         for wordKey in words.keys():
-            if (len(totalWeightsConsidered) > minWeights) and (len(wordKeys) > minItems):
+            # if (len(totalWeightsConsidered) > minWeights) and (len(wordKeys) > initCount + minItems):
+            if (len(wordKeys) > initCount + minItems):
                 break
             
             if wordKey not in wordKeys:
                 wordKeys.append(wordKey)
-                if words[wordKey][key] not in totalWeightsConsidered:
-                    totalWeightsConsidered.append(words[wordKey][key])
+                # if words[wordKey][key] not in totalWeightsConsidered:
+                #     totalWeightsConsidered.append(words[wordKey][key])
                 
         return wordKeys
     
@@ -103,7 +106,7 @@ class LCStory():
         items = re.finditer('([A-Z][a-z0-9\-]+\s*)+', self.text)
         if not items:
             return
-        self.knowledgeGraphProcessor.reset()
+        
         for item in items:
             words = item.group(0).split(' ')
             properNoun = []
@@ -127,9 +130,8 @@ class LCStory():
         return
     
     def setSentences(self):
-        if len(self.data['sentences']):
-            return
-        
+        # if len(self.data['sentences']):
+        #     return 
         sentences = self.__getRawSentences(self.text)
         self.data['total_sentences'] = len(sentences)
         self.data['threshold'] = math.ceil(self.data['total_sentences'] / self.splits)
@@ -156,7 +158,7 @@ class LCStory():
             currentPositionValue -= 1
             #self.data['sentences_with_type'] += ' .'
             
-        self.data['sentences'] = sentences
+        # self.data['sentences'] = sentences
         self.data['after_filter_total_words'] = len(self.data['wordsInfo'].keys())
         return
     
@@ -229,11 +231,15 @@ class LCStory():
         localWordInfo['first_block'] = blockNumber
         
         isProperNoun = False
+        localWordInfo['category'] = 'Noun'
         if (type in ['NNP', 'NNPS']):
             if (wordLower not in self.properNouns.keys()):
                 return 
             localWordInfo['pure_word'] = self.properNouns[wordLower]
             isProperNoun = True
+            localWordInfo['category'] = 'Proper Noun'
+        elif (type in self.wordPosGroups['verb']):
+            localWordInfo['category'] = 'Verb'
 
         localWordInfo['index'] = len(self.data['wordsInfo'])
         localWordInfo['first_position'] = currentPositionValue
@@ -246,10 +252,12 @@ class LCStory():
             + self.occuranceContributingFactor * localWordInfo['count'])
         localWordInfo['tooltip'] = word
         
+        
         if isProperNoun:
             details = self.knowledgeGraphProcessor.getObjectDetails(wordKey)
             if details:
-                localWordInfo['tooltip'] = details['description']
+                localWordInfo['tooltip'] = details['tooltip']
+                localWordInfo['category'] = details['label']
             self.data['proper_nouns'].append(localWordInfo['pure_word'])
 
         for typeName in self.wordPosGroups.keys():
@@ -303,13 +311,14 @@ class LCStory():
             'story_words': [],
             'story_words_keys': [],
             'proper_nouns': [],
-            'sorted_words': {},
-            'sentences': '',
+            # 'sorted_words': {},
+            # 'sentences': '',
             #'sentences_with_type': '',
             'wordsInfo': {},
             'categories': {},
             'graph': {}
         }
+        self.knowledgeGraphProcessor.reset()
         return
     
     '''
