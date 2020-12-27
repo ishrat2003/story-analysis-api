@@ -3,6 +3,7 @@ from nltk import word_tokenize, pos_tag
 from nltk.stem.porter import PorterStemmer
 import utility
 import regex as re
+from .knowledge_graph import KnowledgeGraph
 
 class LCStory():
     
@@ -18,6 +19,7 @@ class LCStory():
         self.negativeWords = utility.Utility.getNegativeWords()
         self.splits = 5
         self.minCharLength = 1
+        self.knowledgeGraphProcessor = KnowledgeGraph()
         return
     
     def setPositionContributingFactor(self, contributingFactor):
@@ -48,53 +50,7 @@ class LCStory():
         # self.data['sorted_words']['first_block'] = self.getDisplayByGroup(words, 'first_block', 0)
 
         self.loadAnalyzedWords()
-        self.data['graph'] = {
-            "nodes": [
-                {
-                    "name": "Peter",
-                    "label": "Person",
-                    "id": 1
-                },
-                {
-                    "name": "Michael",
-                    "label": "Person",
-                    "id": 2
-                },
-                {
-                    "name": "Neo4j",
-                    "label": "Database",
-                    "id": 3
-                },
-                {
-                    "name": "Graph Database",
-                    "label": "Database",
-                    "id": 4
-                }
-            ],
-            "links": [
-                {
-                    "source": 1,
-                    "target": 2,
-                    "type": "KNOWS",
-                    "since": 2010
-                },
-                {
-                    "source": 1,
-                    "target": 3,
-                    "type": "FOUNDED"
-                },
-                {
-                    "source": 2,
-                    "target": 3,
-                    "type": "WORKS_ON"
-                },
-                {
-                    "source": 3,
-                    "target": 4,
-                    "type": "IS_A"
-                }
-            ]
-        };
+        self.data['graph'] = self.knowledgeGraphProcessor.getGraph()
         return self.data
     
     def loadAnalyzedWords(self):
@@ -106,7 +62,6 @@ class LCStory():
         
         analyzedKeys = self.data['story_words_keys']
         analyzedKeys = self.getKeys(pwfWords, analyzedKeys, 'position_weight_forward')
-        print(analyzedKeys)
         
         for wordKey in pwfWords.keys():
             word = pwfWords[wordKey]
@@ -148,21 +103,27 @@ class LCStory():
         items = re.finditer('([A-Z][a-z0-9\-]+\s*)+', self.text)
         if not items:
             return
-        
+        self.knowledgeGraphProcessor.reset()
         for item in items:
             words = item.group(0).split(' ')
             properNoun = []
             for word in words:
                 word = word.strip()
                 lowerWord = word.lower()
-                if lowerWord in self.stopWords:
+                if lowerWord in self.stopWords or not word:
                     continue
                 properNoun.append(word)
+            
             if properNoun:
-                indexNoun = properNoun[-1].lower()
+                fullProperNoun = ' '.join(properNoun)
+                indexNoun = self.stemmer.stem(properNoun[-1].lower())
                 if indexNoun in  self.properNouns.keys():
-                  continue  
-                self.properNouns[indexNoun] = ' '.join(properNoun)
+                  continue
+                
+                if self.knowledgeGraphProcessor.addObject(indexNoun, fullProperNoun):
+                    self.properNouns[indexNoun] = fullProperNoun
+            
+        self.data['categories'] = self.knowledgeGraphProcessor.getCategories()
         return
     
     def setSentences(self):
@@ -181,9 +142,15 @@ class LCStory():
             
             words = self.__getWords(sentence)
             
+            linkCandidates = []
             for word in words:
                 (word, type) = word
-                self._addWordInfo(word, type, currentPositionValue)
+                addedWordKey = self._addWordInfo(word, type, currentPositionValue)
+                if addedWordKey:
+                    linkCandidates.append(addedWordKey + '---' + type)
+                    
+            if len(linkCandidates) > 1:
+                print('---', linkCandidates)
             
             
             currentPositionValue -= 1
@@ -228,16 +195,17 @@ class LCStory():
     def _addWordInfo(self, word, type, currentPositionValue):
         if (type not in self.allowedPOSTypes) or (len(word) <= self.minCharLength):
             # print(word, '    ', type)
-            return
+            return None
 
         if word in self.stopWords:
-            return
+            return None
         wordLower = word.lower()
         wordKey = self.stemmer.stem(wordLower)
         localWordInfo = {}
         localWordInfo['type'] = type
         localWordInfo['pure_word'] = word
         localWordInfo['stemmed_word'] = wordKey
+        
         
         #self.data['sentences_with_type'] += ' ' + type + '##' + wordKey + ' '
         blockNumber = (currentPositionValue // self.data['threshold'])
@@ -254,7 +222,7 @@ class LCStory():
             if len(localWordInfo['blocks']) == self.splits:
                 if wordKey not in self.data['story_words_keys']:
                     self.data['story_words_keys'].append(wordKey)
-            return
+            return wordKey
         
         
         localWordInfo['blocks'] = [blockNumber]
@@ -296,7 +264,7 @@ class LCStory():
             
         self.data['wordsInfo'][wordKey] = localWordInfo
         # print(self.data['wordsInfo'][wordKey])
-        return
+        return wordKey
     
     def __getWords(self, text):
         words = word_tokenize(text)
@@ -335,7 +303,9 @@ class LCStory():
             'sorted_words': {},
             'sentences': '',
             #'sentences_with_type': '',
-            'wordsInfo': {}
+            'wordsInfo': {},
+            'categories': {},
+            'graph': {}
         }
         return
     

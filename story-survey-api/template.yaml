@@ -26,6 +26,11 @@ Parameters:
     Type: AWS::SSM::Parameter::Value<String>
     Default: "http://host.docker.internal:8000"
 
+  GOOGLE_KNOWLEDGE_GRAPH:
+    Description: Google Knowledge Graph Api Key
+    Type: AWS::SSM::Parameter::Value<String>
+    Default: "AIzaSyDeBUKPWbaGd3B6oWYg4ZMzK9FXgg4jlAM"
+
 # More info about Globals: 
 Globals:
   Function:
@@ -38,6 +43,8 @@ Globals:
         DYNAMODB_ENDPOINT: !Ref DYNAMODB_ENDPOINT
         DEFAULT_DYNAMODB_ENDPOINT: !Ref DEFAULT_DYNAMODB_ENDPOINT
         TABLE_NAME: !Ref TABLE_NAME
+        GOOGLE_KNOWLEDGE_GRAPH: !Ref GOOGLE_KNOWLEDGE_GRAPH
+        
   Api:
     # Properties of AWS::Serverless::Api
     Cors:
