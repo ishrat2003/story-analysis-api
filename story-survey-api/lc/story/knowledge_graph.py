@@ -14,6 +14,7 @@ class KnowledgeGraph():
     def reset(self):
         self.objects = {}
         self.categories = {}
+        self.links = []
         return
     
     def getObjects(self):
@@ -28,53 +29,34 @@ class KnowledgeGraph():
         return self.categories
     
     def getGraph(self):
+        nodes = []
+        for key in self.objects.keys():
+            nodes.append(self.objects[key])
         return {
-            "nodes": [
-                {
-                    "name": "Peter",
-                    "label": "Person",
-                    "id": 1
-                },
-                {
-                    "name": "Michael",
-                    "label": "Person",
-                    "id": 2
-                },
-                {
-                    "name": "Neo4j",
-                    "label": "Database",
-                    "id": 3
-                },
-                {
-                    "name": "Graph Database",
-                    "label": "Database",
-                    "id": 4
-                }
-            ],
-            "links": [
-                {
-                    "source": 1,
-                    "target": 2,
-                    "type": "KNOWS",
-                    "since": 2010
-                },
-                {
-                    "source": 1,
-                    "target": 3,
-                    "type": "FOUNDED"
-                },
-                {
-                    "source": 2,
-                    "target": 3,
-                    "type": "WORKS_ON"
-                },
-                {
-                    "source": 3,
-                    "target": 4,
-                    "type": "IS_A"
-                }
-            ]
+            "nodes": nodes,
+            "links": self.links
         };
+        
+        
+    def addLink(self, sentence):
+        objects = []
+        verbs = []
+        
+        for word in sentence:
+            if word['stemmed_word'] in self.objects.keys():
+                objects.append(word['stemmed_word'])
+            elif ((len(objects) == 1) and (word['type'][0] == 'V')):
+                verbs.append(word)
+
+            if (len(objects) == 2) and (len(verbs) == 1):
+                verb = verbs.pop()
+                link = {
+                    "source": self.objects[objects.pop(0)]['id'],
+                    "target": self.objects[objects[0]]['id'],
+                    "type": verb['pure_word']
+                }
+                self.links.append(link)
+        return
         
     
     def addObject(self, key, query):
@@ -91,9 +73,9 @@ class KnowledgeGraph():
             if self.isPerson(query.lower()):
                 self.objects[key] = {
                     "name": query,
-                    "description": "",
-                    "types": [],
-                    "category": "Person"
+                    "description": "Individual",
+                    "label": "Person",
+                    "id": len(self.objects)
                 }
                 self.appendCategoryItem("Person", query)
                 return True
@@ -106,8 +88,8 @@ class KnowledgeGraph():
         self.objects[key] = {
             "name": query,
             "description": self.getDescription(response['itemListElement'][0]['result']),
-            "types": response['itemListElement'][0]['result']['@type'],
-            "category": category
+            "label": category,
+            "id": len(self.objects)
         }
         self.appendCategoryItem(category, query)
         

@@ -147,10 +147,10 @@ class LCStory():
                 (word, type) = word
                 addedWordKey = self._addWordInfo(word, type, currentPositionValue)
                 if addedWordKey:
-                    linkCandidates.append(addedWordKey + '---' + type)
+                    linkCandidates.append(self.data['wordsInfo'][addedWordKey])
                     
             if len(linkCandidates) > 1:
-                print('---', linkCandidates)
+                self.knowledgeGraphProcessor.addLink(linkCandidates)
             
             
             currentPositionValue -= 1
@@ -244,9 +244,12 @@ class LCStory():
         localWordInfo['occurance_weight'] = (localWordInfo['count'] / self.data['total_words']) * 100
         localWordInfo['score'] = (self.positionContributingFactor * localWordInfo['position_weight_forward']
             + self.occuranceContributingFactor * localWordInfo['count'])
-        
+        localWordInfo['tooltip'] = word
         
         if isProperNoun:
+            details = self.knowledgeGraphProcessor.getObjectDetails(wordKey)
+            if details:
+                localWordInfo['tooltip'] = details['description']
             self.data['proper_nouns'].append(localWordInfo['pure_word'])
 
         for typeName in self.wordPosGroups.keys():
