@@ -1,4 +1,4 @@
-import operator, math
+import operator, math, datetime
 from nltk import word_tokenize, pos_tag
 from nltk.stem.porter import PorterStemmer
 import utility
@@ -30,7 +30,7 @@ class LCStory():
         self.occuranceContributingFactor = contributingFactor
         return
     
-    def getConcepts(self, text):
+    def getConcepts(self, text, date):
         self.__reset(text)
         self.setProspectiveProperNouns()
         self.setSentences()
@@ -52,7 +52,60 @@ class LCStory():
         self.loadAnalyzedWords()
         self.data['graph'] = self.knowledgeGraphProcessor.getGraph(self.data['wordsInfo'], self.data['story_words_keys'])
         del self.data['wordsInfo']
+        self.data['story_what_about'] = self.getAboutHtml(date)
         return self.data
+    
+    def getAboutHtml(self, date):
+        html = 'This story is about '
+        divider = ''
+        totalAbouts = len(self.data['story_about'])
+        index = 0
+        if not len(self.data['story_about']):
+            self.data['story_about'].append(self.data['story_words_keys'][0])
+        for about in self.data['story_about']:
+            html += divider + '<span class="story_about">"' + about + '"</span>'
+            if index == totalAbouts - 2:
+                divider = ' and '
+            else:
+                divider = ', '
+            index += 1
+        html += '.' + ' It has been reported <span class="story_period">' + self.whenReported(date) + '.</span>'
+        return html
+
+    def whenReported(self, pubDate):
+        pubDateReference = datetime.datetime.strptime(pubDate[0:10], '%Y-%m-%d')
+        currentDateTime = datetime.datetime.now()
+        
+        yearGap = abs(currentDateTime.year - pubDateReference.year)
+        if yearGap == 0:
+            return self.getMonthGap(currentDateTime, pubDateReference)
+        if yearGap <= 3:
+            return 'in last 3 years'
+        if yearGap <= 6:
+            return 'in last 6 yeas'
+        return 'on ' + pubDate
+    
+    def getMonthGap(self, currentDateTime, pubDateReference):
+        monthGap = abs(currentDateTime.month - pubDateReference.month)
+        if monthGap == 0:
+            return self.getDayGap(currentDateTime, pubDateReference)
+        if monthGap <= 3:
+            return 'in last 3 months'
+        if monthGap <= 6:
+            return 'in last 6 months'
+        if monthGap <= 9:
+            return 'in last 9 months'
+        return 'this year.'
+        
+    def getDayGap(self, currentDateTime, pubDateReference):
+        difference = abs((currentDateTime - pubDateReference).days)
+        if difference == 0:
+            return 'Today'
+        if difference <= 7:
+            return 'in last few days'
+        if difference <= 21:
+            return 'in last few weeks'
+        return 'this month'
     
     def loadAnalyzedWords(self):
         pwfWords = self.sort('position_weight_forward')
@@ -224,6 +277,7 @@ class LCStory():
             if len(localWordInfo['blocks']) == self.splits:
                 if wordKey not in self.data['story_words_keys']:
                     self.data['story_words_keys'].append(wordKey)
+                    self.data['story_about'].append(localWordInfo['pure_word'])
             return wordKey
         
         
@@ -263,15 +317,19 @@ class LCStory():
         for typeName in self.wordPosGroups.keys():
             if localWordInfo['type'] in self.wordPosGroups[typeName]:
                 localWordInfo['color_group'] = typeName
+                if localWordInfo['category'] in ['Person', 'Location', 'Time', 'Organization']:
+                    localWordInfo['color_group'] = localWordInfo['category'].lower()
                 break
                 
         if localWordInfo['stemmed_word'] in self.positiveWords:
-            localWordInfo['color_group'] = 'positive'
+            # localWordInfo['color_group'] = 'positive'
             localWordInfo['sentiment'] = 'positive'
+            self.data['sentiment']['positive'].append(localWordInfo['pure_word'])
 
         if localWordInfo['stemmed_word'] in self.negativeWords:
-            localWordInfo['color_group'] = 'negative'
+            # localWordInfo['color_group'] = 'negative'
             localWordInfo['sentiment'] = 'negative'
+            self.data['sentiment']['negative'].append(localWordInfo['pure_word'])
             
         self.data['wordsInfo'][wordKey] = localWordInfo
         # print(self.data['wordsInfo'][wordKey])
@@ -308,12 +366,17 @@ class LCStory():
             'total_topic_words': 0,
             'topic_words': [],
             'total_story_words': 0,
-            'story_words': [],
+            'story_about': [],
             'story_words_keys': [],
             'proper_nouns': [],
             # 'sorted_words': {},
             # 'sentences': '',
             #'sentences_with_type': '',
+            'sentiment': {
+              'positive': [],
+              'negative': []  
+            },
+            'story_words': [],
             'wordsInfo': {},
             'categories': {},
             'graph': {}
