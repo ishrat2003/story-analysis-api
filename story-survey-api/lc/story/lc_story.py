@@ -61,7 +61,11 @@ class LCStory():
         totalAbouts = len(self.data['story_about'])
         index = 0
         if not len(self.data['story_about']):
-            self.data['story_about'].append(self.data['story_words_keys'][0])
+            if self.data['topic_words']:
+                self.data['story_about'].append(self.data['topic_words'][0])
+            else:
+                self.data['story_about'].append(self.data['story_words_keys'][0])
+                
         for about in self.data['story_about']:
             html += divider + '<span class="story_about">"' + about + '"</span>'
             if index == totalAbouts - 2:
@@ -322,12 +326,12 @@ class LCStory():
                 break
                 
         if localWordInfo['stemmed_word'] in self.positiveWords:
-            # localWordInfo['color_group'] = 'positive'
+            localWordInfo['color_group'] = 'positive'
             localWordInfo['sentiment'] = 'positive'
             self.data['sentiment']['positive'].append(localWordInfo['pure_word'])
 
         if localWordInfo['stemmed_word'] in self.negativeWords:
-            # localWordInfo['color_group'] = 'negative'
+            localWordInfo['color_group'] = 'negative'
             localWordInfo['sentiment'] = 'negative'
             self.data['sentiment']['negative'].append(localWordInfo['pure_word'])
             
