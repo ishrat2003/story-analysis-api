@@ -5,19 +5,46 @@ Description: >
 
   Sample SAM Template for story-survey-api
 
+Parameters:
+  TABLE_NAME:
+    Default: "localstoryreview"
+    Type: AWS::SSM::Parameter::Value<String>
+    Description: (Required) The name of the new DynamoDB table you want to create and save to. Minimum 3 characters
+
+  ENVIRONMENT_NAME:
+    Description: Environment name
+    Type: AWS::SSM::Parameter::Value<String>
+    Default: "local"
+  
+  DYNAMODB_ENDPOINT:
+    Description: DynamoDb endpoint
+    Type: AWS::SSM::Parameter::Value<String>
+    Default: "https://dynamodb.eu-west-1.amazonaws.com" 
+    
+  DEFAULT_DYNAMODB_ENDPOINT:
+    Description: DynamoDb endpoint
+    Type: AWS::SSM::Parameter::Value<String>
+    Default: "http://host.docker.internal:8000"
+
+  GOOGLE_KNOWLEDGE_GRAPH:
+    Description: Google Knowledge Graph Api Key
+    Type: AWS::SSM::Parameter::Value<String>
+    Default: "YOUR_GOOGLE_KNOWLEDGE_GRAPH"
+
 # More info about Globals: 
 Globals:
   Function:
     # Properties of AWS::Serverless::Function
-    Timeout: 900
+    Timeout: 1000
     Environment:
       Variables:
         API_NAME: story_survey_api
-        ENVIRONMENT_NAME: "production"
-        DYNAMODB_ENDPOINT: "https://dynamodb.eu-west-1.amazonaws.com"
-        DEFAULT_DYNAMODB_ENDPOINT: "http://host.docker.internal:8000"
-        TABLE_NAME: "localstoryreview"
-        GOOGLE_KNOWLEDGE_GRAPH: "GOOGLE_KNOWLEDGE_GRAPH_KEY"
+        ENVIRONMENT_NAME: !Ref ENVIRONMENT_NAME
+        DYNAMODB_ENDPOINT: !Ref DYNAMODB_ENDPOINT
+        DEFAULT_DYNAMODB_ENDPOINT: !Ref DEFAULT_DYNAMODB_ENDPOINT
+        TABLE_NAME: !Ref TABLE_NAME
+        GOOGLE_KNOWLEDGE_GRAPH: !Ref GOOGLE_KNOWLEDGE_GRAPH
+        
   Api:
     # Properties of AWS::Serverless::Api
     Cors:
@@ -48,7 +75,7 @@ Resources:
   SurveyFunction:
     Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
     Properties:
-      CodeUri: s3://sam-story-analysis/story_analysis_survey/
+      CodeUri: survey/
       Handler: app.save_handler
       Runtime: python3.8
       Layers:
@@ -68,7 +95,7 @@ Resources:
   LcFunction:
     Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
     Properties:
-      CodeUri: s3://sam-story-analysis/story_analysis_lc/
+      CodeUri: lc/
       Handler: app.lambda_lc_handler
       Layers:
         - arn:aws:lambda:eu-west-1:540686626730:layer:StoryLayer:6
