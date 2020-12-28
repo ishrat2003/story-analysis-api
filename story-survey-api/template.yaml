@@ -29,7 +29,7 @@ Parameters:
   GOOGLE_KNOWLEDGE_GRAPH:
     Description: Google Knowledge Graph Api Key
     Type: AWS::SSM::Parameter::Value<String>
-    Default: "AIzaSyDeBUKPWbaGd3B6oWYg4ZMzK9FXgg4jlAM"
+    Default: "YOUR_API_KEY"
 
 # More info about Globals: 
 Globals:
