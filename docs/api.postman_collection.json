@@ -1,0 +1,103 @@
+{
+	"info": {
+		"_postman_id": "d8762c36-433a-42e8-9ade-3bc11028c139",
+		"name": "Research",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Lc",
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n        \"title\": \"Students to be offered first choice university places\",\n        \"description\": \"The government is also lifting student number caps for would be doctors, dentists, vets and teachers.\",\n        \"link\": \"https://www.bbc.co.uk/news/education-53850146\",\n        \"pubDate\": \"2020-12-27T20:43:11.000Z\",\n        \"content\": \"Universities in England will offer all students with the grades places on their first choice courses, but many will have to start next year.  The government has also lifted the cap on medical, dentistry, veterinary and teaching courses, and agreed targeted extra funding.  Universities UK said the A-level U-turn still posed \\\"significant challenges\\\", and called for more funding. Universities minister Michelle Donelan acknowledged the difficulties faced. England's Department for Education said all offers to students who met their conditions would be honoured this coming year, wherever possible. Revised A-levels results in England - after the algorithm was scrapped following the downgrading of nearly 40% of grades last week - show 38.1% of  results were awarded an A* or A, compared to 25.2% last year.  Failures were down, with 0.3% of entries not getting a pass, compared to 2.5% last year.  Delays to BTec results, which were pulled on Wednesday to allow examiners to raise grades in line with A-levels, have left a new group of students worried about losing out on their preferred courses.  Labour has called for a \\\"cast-iron guarantee\\\" to all students that their offers will be upheld.  \\nHancock 'looking at' lifting cap on medical places\\nUniversities facing 'crazy demand' from students\\nWhat's happening with university admissions?\\nAnger over 'unfair' A-level results\\n Hancock 'looking at' lifting cap on medical places Universities facing 'crazy demand' from students What's happening with university admissions? Anger over 'unfair' A-level results With more students making their offer requirements, universities are under considerable pressure due to \\\"late movement of student between institutions\\\", according to Alistair Jarvis, chief executive of Universities UK.  \\\"Government now needs to urgently confirm funding both to ensure the financial stability of institutions suffering from a loss of students and to offer further support to maintain and build capacity where needed,\\\" said Mr Jarvis.  He added: \\\"Universities and their admissions teams are doing everything they can to accommodate students on their first choice course and where this is not practically possible, to advise on and offer other opportunities, such as a deferred place for next year or a suitable alternative course.  \\\"The priority must be to support students.\\\"  Mr Jarvis welcomed the move by government to lift long-standing student number controls on domestic students in:  \\nmedicine\\ndentistry\\nveterinary science\\nand undergraduate teacher training\\n medicine dentistry veterinary science and undergraduate teacher training Ms Donelan said she wanted to reassure students that \\\"every effort is being made to make sure all those who planned to, can move to higher education\\\".  She said she was delighted that government and the higher education sector had \\\"agreed that all students who achieved the required grades will be offered a place at their first choice university\\\". \\\"I want universities to do all they can to take them on this year or offer alternative courses or deferred places where required. \\\"The pandemic has highlighted more than ever the importance of our fantastic healthcare services and the need to invest in them,\\\" she added.  She also said there would be additional grant funding to boost capacity in high cost subjects including medicine, nursing, the sciences, engineering, technology and maths, but gave no details. But there are concerns that while some institutions find themselves oversubscribed, others will have the reverse problem.  Dr Tim Bradshaw, chief executive of the highly selective Russell Group of universities said admissions teams were \\\"working round the clock\\\".  He welcomed the government's decision a \\\"a very positive step\\\".  \\\"Russell Group universities are working with government and will do everything they can to accommodate as many students as possible on their preferred courses this year.\\\" \"\n    }",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{API_URL}}/lc",
+					"host": [
+						"{{API_URL}}"
+					],
+					"path": [
+						"lc"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "survey",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"close_date_time\": \"26-12-2020 17:38:13\",\n    \"confidence\": \"3\",\n    \"news_topics\": \"Russia, George Blake, MI6\",\n    \"open_date_time\": \"26-12-2020 17:32:36\",\n    \"story_date\": \"2020-12-26T11:22:35.000Z\",\n    \"story_link\": \"https://www.bbc.co.uk/news/uk-55452313\",\n    \"story_source\": \"www.bbc.co.uk\",\n    \"story_title\": \"George Blake: Soviet Cold War spy and former MI6 officer dies in Russia\",\n    \"summary\": \"George Blake died. He was a cold war spy. Many people died because of him. \",\n    \"user_code\": \"90.205.84.136\",\n    \"what\": \"Death\",\n    \"when_happened\": \"today\",\n    \"where_location\": \"Russia\",\n    \"who\": \"George Blake\",\n    \"why\": \"Aged\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{API_URL}}/survey",
+					"host": [
+						"{{API_URL}}"
+					],
+					"path": [
+						"survey"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Google knowledge graph",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://kgsearch.googleapis.com/v1/entities:search?query=taylor+swift&key={{GOOGLE_KNOWLEDGE_GRAPH}}&limit=1&indent=True",
+					"protocol": "https",
+					"host": [
+						"kgsearch",
+						"googleapis",
+						"com"
+					],
+					"path": [
+						"v1",
+						"entities:search"
+					],
+					"query": [
+						{
+							"key": "query",
+							"value": "taylor+swift"
+						},
+						{
+							"key": "key",
+							"value": "{{GOOGLE_KNOWLEDGE_GRAPH}}"
+						},
+						{
+							"key": "limit",
+							"value": "1"
+						},
+						{
+							"key": "indent",
+							"value": "True"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

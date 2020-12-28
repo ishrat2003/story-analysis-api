@@ -1,7 +1,7 @@
 REGION=$(aws configure get region)
 AWS_USER_ACCOUNTID=$(aws sts get-caller-identity | python3 -c "import sys, json; print(json.load(sys.stdin)['Account'])")
 ROLE="arn:aws:iam::$AWS_USER_ACCOUNTID:role/LambdaRole"
-SHARED_LAYER="arn:aws:lambda:${REGION}:$AWS_USER_ACCOUNTID:layer:StoryLayer:6"
+SHARED_LAYER="arn:aws:lambda:${REGION}:$AWS_USER_ACCOUNTID:layer:StoryLayer:9"
 S3_LAMBDA_BUCKET="sam-story-analysis"
 
 
