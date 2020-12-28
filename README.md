@@ -1,6 +1,6 @@
 # Story Analysis Api
 
-Story analysis is an academic project sponsored by <b><a href="https://www.gold.ac.uk/">Goldsmiths, University of London</a></b> and <b><a href="https://www.thebyte9.com/">Byte9, London</a></b>. Written documents not only contains topic related information for NLP tasks but also preserves the writer’s rhetoric and cognitive connectivity of the underlying concepts and actions. Inspired by <b><a href="https://en.wikipedia.org/wiki/Hero%27s_journey">Joseph Campbell’s "The Hero’s Journey"</a></b>, this API extracts terms from document for evaluating the cognitive richness of the underlying extraction. It also uses <b><a href="https://developers.google.com/knowledge-graph">Google’s Knowledge Graph API</a></b> for categorization.</p>
+Story analysis is an academic project sponsored by <b><a href="https://www.gold.ac.uk/">Goldsmiths, University of London</a></b> and <b><a href="https://www.thebyte9.com/">Byte9, London</a></b>. Written documents not only contains topics related information for NLP tasks but also preserves the writer’s rhetoric and cognitive connectivity of the underlying concepts and actions. Inspired by <b><a href="https://en.wikipedia.org/wiki/Hero%27s_journey">Joseph Campbell’s "The Hero’s Journey"</a></b>, this API extracts terms from document for evaluating the cognitive richness of the underlying extraction. It also uses <b><a href="https://developers.google.com/knowledge-graph">Google’s Knowledge Graph API</a></b> for categorization.</p>
 
 ## Setup Instructions
 
