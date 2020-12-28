@@ -1,8 +1,10 @@
-# Story survey api
+# Story Analysis Api
 
-Setup Instruction
+Story analysis is an academic project sponsored by <b><a href="https://www.gold.ac.uk/">Goldsmiths, University of London</a></b> and <b><a href="https://www.thebyte9.com/">Byte9, London</a></b>. Written documents not only contains topics related information for NLP tasks but also preserves the writer’s rhetoric and cognitive connectivity of the underlying concepts and actions. Inspired by <b><a href="https://en.wikipedia.org/wiki/Hero%27s_journey">Joseph Campbell’s "The Hero’s Journey"</a></b>, this API extracts terms from document for evaluating the cognitive richness of the underlying extraction. It also uses <b><a href="https://developers.google.com/knowledge-graph">Google’s Knowledge Graph API</a></b> for categorization.</p>
 
-1. Setup AWS CLI locally with IAM user with the required permissions.
+## Setup Instructions
+
+1. Setup Docker and AWS CLI locally with IAM user with the required permissions.
 2. Setup dependent lambda layer. Setup [story-analysis-layers](https://github.com/ishrat2003/story-analysis-layers) project localy and run the following script inside the project to upload required packages. 
     ```sh
     $ cd story-analysis-layers
@@ -49,3 +51,23 @@ Setup Instruction
     API_URL http://127.0.0.1:3500
     GOOGLE_KNOWLEDGE_GRAPH "YOUR_GOOGLE_KNOWLEDGE_GRAPH_KEY"
     ```
+
+## Setup local API
+
+1. Copy story-survey-api/production-template.yaml to story-survey-api/template.yaml
+2. Execute the following command to start local server.
+    ```sh
+    $ ./scripts/local/start.sh
+    ```
+3. Setup local DynamoDb table using the following script.
+    ```sh
+    $ ./scripts/dynamodb/seed.sh -e local
+    ```
+4. Execute the following command to start local server.
+    ```sh
+    $ ./scripts/local/terminate.sh
+    ```
+
+## Note
+
+If you use this code please reference the relevant [publication(s)](http://ishratsami.blogspot.com/p/publications.html).
