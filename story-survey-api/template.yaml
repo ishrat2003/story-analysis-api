@@ -29,7 +29,7 @@ Parameters:
   GOOGLE_KNOWLEDGE_GRAPH:
     Description: Google Knowledge Graph Api Key
     Type: AWS::SSM::Parameter::Value<String>
-    Default: "YOUR_API_KEY"
+    Default: "YOUR_GOOGLE_KNOWLEDGE_GRAPH"
 
 # More info about Globals: 
 Globals:
@@ -79,7 +79,7 @@ Resources:
       Handler: app.save_handler
       Runtime: python3.8
       Layers:
-        - arn:aws:lambda:eu-west-1:540686626730:layer:StoryLayer:6
+        - arn:aws:lambda:eu-west-1:540686626730:layer:StoryLayer:9
       Policies:
         - DynamoDBCrudPolicy:
             TableName: 
