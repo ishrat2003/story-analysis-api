@@ -1,0 +1,159 @@
+AWSTemplateFormatVersion: 2010-09-09
+Transform: AWS::Serverless-2016-10-31
+Description: 'story-survey-api
+
+  Sample SAM Template for story-survey-api
+
+  '
+Parameters:
+  TABLE_NAME:
+    Default: localstoryreview
+    Type: AWS::SSM::Parameter::Value<String>
+    Description: (Required) The name of the new DynamoDB table you want to create
+      and save to. Minimum 3 characters
+  ENVIRONMENT_NAME:
+    Description: Environment name
+    Type: AWS::SSM::Parameter::Value<String>
+    Default: local
+  DYNAMODB_ENDPOINT:
+    Description: DynamoDb endpoint
+    Type: AWS::SSM::Parameter::Value<String>
+    Default: https://dynamodb.eu-west-1.amazonaws.com
+  DEFAULT_DYNAMODB_ENDPOINT:
+    Description: DynamoDb endpoint
+    Type: AWS::SSM::Parameter::Value<String>
+    Default: http://host.docker.internal:8000
+  S3_ENDPOINT:
+    Description: S3 endpoint
+    Type: AWS::SSM::Parameter::Value<String>
+    Default: http://host.docker.internal:4566
+  REGION:
+    Description: Region
+    Type: AWS::SSM::Parameter::Value<String>
+    Default: eu-west-1
+  GOOGLE_KNOWLEDGE_GRAPH:
+    Description: Google Knowledge Graph Api Key
+    Type: AWS::SSM::Parameter::Value<String>
+    Default: AIzaSyDeBUKPWbaGd3B6oWYg4ZMzK9FXgg4jlAM
+Globals:
+  Function:
+    Timeout: 1000
+    Environment:
+      Variables:
+        API_NAME: story_survey_api
+        ENVIRONMENT_NAME:
+          Ref: ENVIRONMENT_NAME
+        DYNAMODB_ENDPOINT:
+          Ref: DYNAMODB_ENDPOINT
+        DEFAULT_DYNAMODB_ENDPOINT:
+          Ref: DEFAULT_DYNAMODB_ENDPOINT
+        TABLE_NAME:
+          Ref: TABLE_NAME
+        GOOGLE_KNOWLEDGE_GRAPH:
+          Ref: GOOGLE_KNOWLEDGE_GRAPH
+        S3_ENDPOINT:
+          Ref: S3_ENDPOINT
+  Api:
+    Cors:
+      AllowMethods: '''GET,OPTIONS'''
+      AllowHeaders: '''Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'''
+      AllowOrigin: '''*'''
+Resources:
+  DynamoDBTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName:
+        REF: TABLE_NAME
+      AttributeDefinitions:
+      - AttributeName: story_link
+        AttributeType: S
+      - AttributeName: user_code
+        AttributeType: S
+      KeySchema:
+      - AttributeName: story_link
+        KeyType: HASH
+      - AttributeName: user_code
+        KeyType: HASH
+      ProvisionedThroughput:
+        ReadCapacityUnits: 1
+        WriteCapacityUnits: 1
+  SurveyFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: s3://sam-story-analysis/35bdecd81582bdfd6d4b2de650625e2e
+      Handler: app.save_handler
+      Runtime: python3.8
+      Layers:
+      - arn:aws:lambda:eu-west-1:540686626730:layer:StoryLayer:9
+      Policies:
+      - DynamoDBCrudPolicy:
+          TableName:
+            REF: TABLE_NAME
+      Events:
+        survey:
+          Type: Api
+          Properties:
+            Path: /survey
+            Method: post
+  LcFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: s3://sam-story-analysis/2de5ef1d447e306564ed493992e345d5
+      Handler: app.lambda_lc_handler
+      Layers:
+      - arn:aws:lambda:eu-west-1:540686626730:layer:StoryLayer:6
+      Runtime: python3.8
+      Events:
+        lc:
+          Type: Api
+          Properties:
+            Path: /lc
+            Method: post
+  TopicFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: s3://sam-story-analysis/399a4f7ec4a0cea0c6a7349e9d1e941f
+      Handler: app.lambda_topic_handler
+      Layers:
+      - arn:aws:lambda:eu-west-1:540686626730:layer:StoryLayer:6
+      Runtime: python3.8
+      Events:
+        lc:
+          Type: Api
+          Properties:
+            Path: /topic
+            Method: post
+Outputs:
+  LcApi:
+    Description: API Gateway endpoint URL for Prod stage for LC function
+    Value: https://story-analysis-api.execute-api.eu-west-1.amazonaws.com/lc/
+  LcFunction:
+    Description: Lc Lambda Function ARN
+    Value:
+      GETATT: LcFunction.Arn
+  LcIamRole:
+    Description: Implicit IAM Role created for Lc function
+    Value:
+      GETATT: LcIamRole.IamRoleArn
+  SurveyApi:
+    Description: API Gateway endpoint URL for Prod stage for  Survey function
+    Value: https://story-analysis-api.execute-api.eu-west-1.amazonaws.com/survey/
+  SurveyFunction:
+    Description: Survey Lambda Function ARN
+    Value:
+      GETATT: SurveyFunction.Arn
+  SurveyIamRole:
+    Description: Implicit IAM Role created for Survey function
+    Value:
+      GETATT: SurveyIamRole.IamRoleArn
+  TopicApi:
+    Description: API Gateway endpoint URL for Prod stage for  Topic function
+    Value: https://story-analysis-api.execute-api.eu-west-1.amazonaws.com/topic/
+  TopicFunction:
+    Description: Topic Lambda Function ARN
+    Value:
+      GETATT: TopicFunction.Arn
+  TopicIamRole:
+    Description: Implicit IAM Role created for Survey function
+    Value:
+      GETATT: TopicIamRole.IamRoleArn
