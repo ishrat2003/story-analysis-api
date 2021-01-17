@@ -4,10 +4,23 @@ from .s3 import S3
 class Analysis(S3):
     
     def getTopics(self):
-        content = self.getContent('gc/topics.json')
-        print(content)
+        return self.getGcFileContent('topics')
+    
+    def getCountries(self):
+        return self.getGcFileContent('country_topics')
+    
+    def getPeople(self):
+        return self.getGcFileContent('person_topics')
+    
+    def getOrganizations(self):
+        return self.getGcFileContent('organization_topics')
+    
+    def getGcFileContent(self, key):
+        content = self.getContent('gc/' + key + '.json')
         if content:
-            return json.load(content['Body'])
+            content = json.load(content['Body'])
+            return content
         return None
+        
 
 

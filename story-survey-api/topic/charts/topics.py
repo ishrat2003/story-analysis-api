@@ -1,17 +1,38 @@
 import operator
+from .base import Base
 
-class Topics:
+class Topics(Base):
     
     def __init__(self):
         self.limit = 50
+        self.subItemLimit = 5
         self.topics = {}
         return
+    
+    def getPeople(self):
+        return self.getCategoryTopics('People')
+    
+    def getOrganizations(self):
+        return self.getCategoryTopics('Organization')
+    
+    def getCategoryTopics(self, category):
+        if not len(self.topics.keys()):
+            return []
+        items = {}
+        for topic in self.topics.keys():
+            if self.topics[topic]['category'] == category:
+                items[topic] = self.topics[topic]
+                
+        if not len(items.keys()):
+            return []
+        sortedItems = self.sort(items)
+        return sortedItems[0: self.subItemLimit]
     
     def count(self, start, end, data):
         startYear, _, _ = self.getSplited(start)
         endYear, _, _ = self.getSplited(end)
         self.topics = {}
-        print('----------------------')
+        
         for year in self.getRangeToList(startYear, endYear):
             months = self.getMonthsForYear(year, start, end)
             print('year: ', year)
@@ -23,7 +44,7 @@ class Topics:
                     if len(days):
                         for day in days:
                             self.processDay(data, year, month, day)
-        sortedTopics = self.sort()
+        sortedTopics = self.sort(self.topics)
         return sortedTopics[0: self.limit]
     
     def processDay(self, data, year, month, day):
@@ -45,25 +66,15 @@ class Topics:
         
         for topic in data[year][month][day].keys():
             if topic not in self.topics.keys():
-                self.topics[topic] = {
-                    'name': topic,
-                    'count': 0
-                }
-            self.topics[topic]['count'] += data[year][month][day][topic]
-        
+                self.topics[topic] =  data[year][month][day][topic]
+                self.topics[topic]['total_block_count'] = 0
+                self.topics[topic]['linegraph'] = []
+            self.topics[topic]['total_block_count'] += data[year][month][day][topic]['block_count']
+            self.topics[topic]['linegraph'].append({
+                'date': year + '-' + self.getFormattedMonthOrDay(month) + '-' + self.getFormattedMonthOrDay(day),
+                'block_count': data[year][month][day][topic]['block_count']
+            })
         return
-    
-    def sort(self, attribute='count'):
-        if not len(self.topics.keys()):
-            return []
-
-        sortedTopics = []
-        contributors = self.topics.values()
-        
-        for value in sorted(contributors, key=operator.itemgetter(attribute, 'count'), reverse=True):
-            sortedTopics.append(value)
-
-        return sortedTopics
     
     def getDayOfMonthForYear(self, year, month, start, end):
         days = [31, 29, 31, 30, 31,30, 31, 31, 30, 31, 30, 31]
