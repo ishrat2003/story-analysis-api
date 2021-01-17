@@ -27,6 +27,10 @@ Parameters:
     Description: S3 endpoint
     Type: AWS::SSM::Parameter::Value<String>
     Default: http://host.docker.internal:4566
+  TOPICS_LIMIT:
+    Description: Topics limit
+    Type: AWS::SSM::Parameter::Value<String>
+    Default: 100
   REGION:
     Description: Region
     Type: AWS::SSM::Parameter::Value<String>
@@ -53,6 +57,8 @@ Globals:
           Ref: GOOGLE_KNOWLEDGE_GRAPH
         S3_ENDPOINT:
           Ref: S3_ENDPOINT
+        REGION:
+          Ref: REGION
   Api:
     Cors:
       AllowMethods: '''GET,OPTIONS'''
@@ -98,7 +104,7 @@ Resources:
   LcFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: s3://sam-story-analysis/2de5ef1d447e306564ed493992e345d5
+      CodeUri: s3://sam-story-analysis/2afdc1d290ea2c35289864b939335088
       Handler: app.lambda_lc_handler
       Layers:
       - arn:aws:lambda:eu-west-1:540686626730:layer:StoryLayer:6
@@ -112,16 +118,30 @@ Resources:
   TopicFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: s3://sam-story-analysis/399a4f7ec4a0cea0c6a7349e9d1e941f
+      CodeUri: s3://sam-story-analysis/a2e3e523075a4a7c0e9cd53ead9a2c51
       Handler: app.lambda_topic_handler
       Layers:
       - arn:aws:lambda:eu-west-1:540686626730:layer:StoryLayer:6
       Runtime: python3.8
       Events:
-        lc:
+        topic:
           Type: Api
           Properties:
             Path: /topic
+            Method: post
+  StoryboardFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: s3://sam-story-analysis/9b4526a3ae99ce4da3f8da3daedc95b9
+      Handler: app.lambda_storyboard_handler
+      Layers:
+      - arn:aws:lambda:eu-west-1:540686626730:layer:StoryLayer:6
+      Runtime: python3.8
+      Events:
+        storyboard:
+          Type: Api
+          Properties:
+            Path: /storyboard
             Method: post
 Outputs:
   LcApi:
@@ -157,3 +177,14 @@ Outputs:
     Description: Implicit IAM Role created for Survey function
     Value:
       GETATT: TopicIamRole.IamRoleArn
+  StoryboardApi:
+    Description: API Gateway endpoint URL for Prod stage for  Topic function
+    Value: https://story-analysis-api.execute-api.eu-west-1.amazonaws.com/storyboard/
+  StoryboardFunction:
+    Description: Topic Lambda Function ARN
+    Value:
+      GETATT: StoryboardFunction.Arn
+  StoryboardIamRole:
+    Description: Implicit IAM Role created for Survey function
+    Value:
+      GETATT: StoryboardIamRole.IamRoleArn

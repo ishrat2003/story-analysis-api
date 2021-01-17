@@ -24,16 +24,16 @@ class Core(Base):
         self.setStart()
         self.setEnd()
         self.countTopics()
-        self.charts['countries'] = self.storyAnalysis.getCountries()
-        if self.charts['countries']:
-            self.charts['countries'] = self.sort(self.charts['countries'], 'block_count')
+        countries = self.storyAnalysis.getCountries()
+        if countries:
+            self.charts['countries'] = self.infoPerDateRange(countries, self.dataDates['start'], self.dataDates['end'], 0)
         people = self.storyAnalysis.getPeople()
         if people:
-            self.charts['people'] = self.infoPerDateRange(people, self.dataDates['start'], self.dataDates['end'])
+            self.charts['people'] = self.infoPerDateRange(people, self.dataDates['start'], self.dataDates['end'], self.subItemLimit)
             
         organizations = self.storyAnalysis.getOrganizations()
         if people:
-            self.charts['organizations'] = self.infoPerDateRange(organizations, self.dataDates['start'], self.dataDates['end'])
+            self.charts['organizations'] = self.infoPerDateRange(organizations, self.dataDates['start'], self.dataDates['end'], self.subItemLimit)
         return
     
     def get(self):
@@ -71,7 +71,7 @@ class Core(Base):
             self.dataDates['end'] = self.params['end']
         return
     
-    def infoPerDateRange(self, items, start, end):
+    def infoPerDateRange(self, items, start, end, limit):
         if not items.keys():
             return []
         
@@ -96,4 +96,7 @@ class Core(Base):
             return []
         
         sortedItems = self.sort(itemsInRange, 'total_block_count_in_range')
-        return sortedItems[0: self.subItemLimit]
+        if limit:
+            return sortedItems[0: limit]
+        
+        return sortedItems

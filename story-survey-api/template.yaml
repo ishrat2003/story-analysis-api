@@ -133,10 +133,25 @@ Resources:
         - arn:aws:lambda:eu-west-1:540686626730:layer:StoryLayer:6
       Runtime: python3.8
       Events:
-        lc:
+        topic:
           Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
           Properties:
             Path: /topic
+            Method: post
+
+  StoryboardFunction:
+    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Properties:
+      CodeUri: storyboard/
+      Handler: app.lambda_storyboard_handler
+      Layers:
+        - arn:aws:lambda:eu-west-1:540686626730:layer:StoryLayer:6
+      Runtime: python3.8
+      Events:
+        storyboard:
+          Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
+          Properties:
+            Path: /storyboard
             Method: post
 
 Outputs:
@@ -178,3 +193,15 @@ Outputs:
     Description: "Implicit IAM Role created for Survey function"
     Value:
       GETATT: TopicIamRole.IamRoleArn
+
+  StoryboardApi:
+    Description: "API Gateway endpoint URL for Prod stage for  Topic function"
+    Value: "https://story-analysis-api.execute-api.eu-west-1.amazonaws.com/storyboard/"
+  StoryboardFunction:
+    Description: "Topic Lambda Function ARN"
+    Value:
+      GETATT: StoryboardFunction.Arn
+  StoryboardIamRole:
+    Description: "Implicit IAM Role created for Survey function"
+    Value:
+      GETATT: StoryboardIamRole.IamRoleArn

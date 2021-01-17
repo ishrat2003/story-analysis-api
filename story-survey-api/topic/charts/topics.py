@@ -44,6 +44,7 @@ class Topics(Base):
                     if len(days):
                         for day in days:
                             self.processDay(data, year, month, day)
+                            
         sortedTopics = self.sort(self.topics)
         return sortedTopics[0: self.limit]
     
@@ -51,6 +52,7 @@ class Topics(Base):
         year = str(year)
         month = str(month)
         day = str(day)
+        fullDateKey = year + '-' + self.getFormattedMonthOrDay(month) + '-' + self.getFormattedMonthOrDay(day)
         
         if year not in data.keys():
             return
@@ -61,17 +63,23 @@ class Topics(Base):
         if day not in data[year][month].keys():
             return
         
-        if not len(data[year][month][day]):
+        if not len(data[year][month][day].keys()):
             return
         
+        # print('-----------------')
+        # print(fullDateKey)
+        # print('-----------------')
         for topic in data[year][month][day].keys():
             if topic not in self.topics.keys():
                 self.topics[topic] =  data[year][month][day][topic]
-                self.topics[topic]['total_block_count'] = 0
+                self.topics[topic]['key'] = topic
+                self.topics[topic]['total_block_count_in_range'] = 0
                 self.topics[topic]['linegraph'] = []
-            self.topics[topic]['total_block_count'] += data[year][month][day][topic]['block_count']
+            self.topics[topic]['total_block_count_in_range'] += data[year][month][day][topic]['block_count']
+            
+            # print(topic , '-' ,data[year][month][day][topic]['block_count'], '=',  self.topics[topic]['total_block_count_in_range'])
             self.topics[topic]['linegraph'].append({
-                'date': year + '-' + self.getFormattedMonthOrDay(month) + '-' + self.getFormattedMonthOrDay(day),
+                'date': fullDateKey,
                 'block_count': data[year][month][day][topic]['block_count']
             })
         return

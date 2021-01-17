@@ -27,7 +27,7 @@ class Base:
         max = items[totalItems - 1]
         return min, max
     
-    def sort(self, items, attribute='total_block_count'):
+    def sort(self, items, attribute='total_block_count_in_range'):
         if not len(items.keys()):
             return []
 
