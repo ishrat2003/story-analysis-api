@@ -9,6 +9,12 @@ def lambda_topic_handler(event, context):
     data = chartProcessor.get()
     return {
         "statusCode": 200,
+        "headers": {
+            'Access-Control-Request-Method': '*',
+            'Access-Control-Request-Headers': '*',
+            'Access-Control-Allow-Origin': '*',
+            'Content-Type': 'application/json'
+        },
         "body": json.dumps({
             "data": data
         })

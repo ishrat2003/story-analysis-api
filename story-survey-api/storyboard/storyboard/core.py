@@ -7,6 +7,7 @@ class Core:
         self.rcAnalysis = Analysis()
         self.documentLimit = 25
         self.subTopicDocumentLimit = 2
+        self.storyWordPerCategoryLimit = 5
         self.topics = params['topic_keys']
         self.storyboard = {}
         self.data = None
@@ -69,10 +70,10 @@ class Core:
                             self.documents[link] = self.data['documents'][year][month][day][link]
                             self.documents[link]['score'] = score
                             self.documents[link]['date_key'] = fullDateKey
-                            self.scoreTerms(self.documents['link'], fullDate, 'topics')
-                            # self.scoreTerms(self.documents['link'], fullDate, 'actions')
-                            # self.scoreTerms(self.documents['link'], fullDate, 'positive')
-                            # self.scoreTerms(self.documents['link'], fullDate, 'negative')
+                            self.scoreTerms(self.documents[link], fullDate, 'topics')
+                            self.scoreTerms(self.documents[link], fullDate, 'actions')
+                            self.scoreTerms(self.documents[link], fullDate, 'positive')
+                            self.scoreTerms(self.documents[link], fullDate, 'negative')
                     
                     self.datedCount.append({
                         "date": fullDateKey,
@@ -85,38 +86,52 @@ class Core:
             self.addToStoryBoardDocument(sortedDocuments[0:self.documentLimit])
             
             self.storyboard['pToN_topics'] = self.sortedTerms(self.scoredTopics['topics'], "position_previous_to_next")
+            self.storyboard['pToN_topics'] = self.storyboard['pToN_topics'][0:self.storyWordPerCategoryLimit]
             self.storyboard['nToP_topics'] = self.sortedTerms(self.scoredTopics['topics'], "position_next_to_previous")
+            self.storyboard['nToP_topics'] = self.storyboard['nToP_topics'][0:self.storyWordPerCategoryLimit]
             
-            # self.storyboard['pToN_actions'] = self.sortedTerms(self.scoredTopics['actions'], "position_previous_to_next")
-            # self.storyboard['nToP_actions'] = self.sortedTerms(self.scoredTopics['actions'], "position_next_to_previous")
+            self.storyboard['pToN_actions'] = self.sortedTerms(self.scoredTopics['actions'], "position_previous_to_next")
+            self.storyboard['pToN_actions'] = self.storyboard['pToN_actions'][0:self.storyWordPerCategoryLimit]
+            self.storyboard['nToP_actions'] = self.sortedTerms(self.scoredTopics['actions'], "position_next_to_previous")
+            self.storyboard['nToP_actions'] = self.storyboard['nToP_actions'][0:self.storyWordPerCategoryLimit]
             
-            # self.storyboard['pToN_positives'] = self.sortedTerms(self.scoredTopics['positives'], "position_previous_to_next")
-            # self.storyboard['nToP_positives'] = self.sortedTerms(self.scoredTopics['positives'], "position_next_to_previous")
+            self.storyboard['pToN_positive'] = self.sortedTerms(self.scoredTopics['positive'], "position_previous_to_next")
+            self.storyboard['pToN_positive'] =  self.storyboard['pToN_positive'][0:self.storyWordPerCategoryLimit]
+            self.storyboard['nToP_positive'] = self.sortedTerms(self.scoredTopics['positive'], "position_next_to_previous")
+            self.storyboard['nToP_positive'] =  self.storyboard['nToP_positive'][0:self.storyWordPerCategoryLimit]
             
-            # self.storyboard['pToN_negative'] = self.sortedTerms(self.scoredTopics['negative'], "position_previous_to_next")
-            # self.storyboard['nToP_negative'] = self.sortedTerms(self.scoredTopics['negative'], "position_next_to_previous")
+            self.storyboard['pToN_negative'] = self.sortedTerms(self.scoredTopics['negative'], "position_previous_to_next")
+            self.storyboard['pToN_negative'] =  self.storyboard['pToN_negative'][0:self.storyWordPerCategoryLimit]
+            self.storyboard['nToP_negative'] = self.sortedTerms(self.scoredTopics['negative'], "position_next_to_previous")
+            self.storyboard['nToP_negative'] =  self.storyboard['nToP_negative'][0:self.storyWordPerCategoryLimit]
             
         if self.datedCount:
             self.storyboard['linegraph'] = self.datedCount
         return
     
-    def scoreTerms(self, document, date, fieldKey):
+    def scoreTerms(self, documentItem, date, fieldKey):
+        # print(documentItem)
+        # print(date)
+        # print(fieldKey)
         documentTopics = documentItem[fieldKey].keys()
         if not len(documentTopics):
             return 0
         if fieldKey not in self.scoredTopics.keys():
             self.scoredTopics[fieldKey] = {}
         
-        for key in documentItem[fieldKey].keys():
+        for key in documentTopics:
             if key not in self.scoredTopics[fieldKey].keys():
                 self.scoredTopics[fieldKey][key] = {
                     "key": key,
-                    "pure_word": documentItem['topics']["pure_word"],
-                    "description": documentItem['topics']["description"],
+                    "pure_word": key[0].upper() + key[1:],
+                    "description": fieldKey[0].upper() + fieldKey[1:],
                     "position_previous_to_next": 0,
                     "position_next_to_previous": 0,
                     "count": 0
                 }
+                if (fieldKey == "topics"):
+                    self.scoredTopics["pure_word"] = documentItem[fieldKey][key]["pure_word"]
+                    self.scoredTopics["description"] = documentItem[fieldKey][key]["description"]
             self.scoredTopics[fieldKey][key]["position_previous_to_next"] += self.getPositionPreviousToNextScore(date)
             self.scoredTopics[fieldKey][key]["position_next_to_previous"] += self.getPositionNextToPreviousScore(date)
             self.scoredTopics[fieldKey][key]["count"] += 1
@@ -218,5 +233,3 @@ class Core:
     def getPositionNextToPreviousScore(self, date):
         totalDays = self.daysBetween(self.maxDate, self.minDate)
         return totalDays - self.daysBetween(self.maxDate, date)
-    
-    

@@ -14,7 +14,7 @@ class Core(Base):
         self.charts = {}
         self.storyAnalysis = Analysis()
         self.data = None
-        self.subItemLimit = 5
+        self.subItemLimit = 6
         return
     
     def load(self):

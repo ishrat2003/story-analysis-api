@@ -52,7 +52,7 @@ class Topics(Base):
         year = str(year)
         month = str(month)
         day = str(day)
-        fullDateKey = year + '-' + self.getFormattedMonthOrDay(month) + '-' + self.getFormattedMonthOrDay(day)
+        fullDateKey = year + '-' + month + '-' + day
         
         if year not in data.keys():
             return

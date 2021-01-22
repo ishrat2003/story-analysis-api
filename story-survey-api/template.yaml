@@ -64,8 +64,8 @@ Globals:
   Api:
     # Properties of AWS::Serverless::Api
     Cors:
-      AllowMethods: "'GET,OPTIONS'"
-      AllowHeaders: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
+      AllowMethods: "'*'"
+      AllowHeaders: "'*'"
       AllowOrigin: "'*'"
     
 Resources:

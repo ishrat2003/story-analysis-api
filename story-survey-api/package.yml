@@ -61,7 +61,7 @@ Globals:
           Ref: REGION
   Api:
     Cors:
-      AllowMethods: '''GET,OPTIONS'''
+      AllowMethods: '''GET,POST,OPTIONS'''
       AllowHeaders: '''Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'''
       AllowOrigin: '''*'''
 Resources:
@@ -118,7 +118,7 @@ Resources:
   TopicFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: s3://sam-story-analysis/a2e3e523075a4a7c0e9cd53ead9a2c51
+      CodeUri: s3://sam-story-analysis/57d69ab7ec357acb7de2539fd164a886
       Handler: app.lambda_topic_handler
       Layers:
       - arn:aws:lambda:eu-west-1:540686626730:layer:StoryLayer:6
@@ -132,7 +132,7 @@ Resources:
   StoryboardFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: s3://sam-story-analysis/9b4526a3ae99ce4da3f8da3daedc95b9
+      CodeUri: s3://sam-story-analysis/416e0cecc8f9a9a469499d9da94747ea
       Handler: app.lambda_storyboard_handler
       Layers:
       - arn:aws:lambda:eu-west-1:540686626730:layer:StoryLayer:6
