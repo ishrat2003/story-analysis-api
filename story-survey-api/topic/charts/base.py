@@ -17,7 +17,7 @@ class Base:
     
     def getFormattedMonthOrDay(self, number):
         if int(number) < 10:
-            return '0' + number
+            return '0' + str(number)
         return number
 
     def getMaxMin(self, items):
@@ -38,3 +38,6 @@ class Base:
             sortedTopics.append(value)
 
         return sortedTopics
+    
+    def getSplited(self, date):
+        return [int(x) for x in date.split("-")]

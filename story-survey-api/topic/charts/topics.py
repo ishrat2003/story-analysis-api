@@ -123,9 +123,6 @@ class Topics(Base):
             return self.getRangeToList(1, endMonth)
         
         return []
-    
-    def getSplited(self, date):
-        return [int(x) for x in date.split("-")]
         
     def getRangeToList(self, start, end):
         return[ x for x in range(int(start), int(end) + 1)]

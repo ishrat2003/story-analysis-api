@@ -34,7 +34,41 @@ class Core(Base):
         organizations = self.storyAnalysis.getOrganizations()
         if people:
             self.charts['organizations'] = self.infoPerDateRange(organizations, self.dataDates['start'], self.dataDates['end'], self.subItemLimit)
+        
+        self.charts['summary'] = "In the selected time frame (" + self.dataDates['start'] 
+        self.charts['summary'] += " to " + self.dataDates['end'] + "), the most highlighted " 
+        self.charts['summary'] += self.getHighlighted(self.charts['topics'], 'topic', '')
+        self.charts['summary'] += self.getHighlighted(self.charts['organizations'], 'organization', 'The most stated ')
+        self.charts['summary'] += self.getHighlighted(self.charts['people'], 'individual', 'The most discussed ')
+        self.charts['summary'] += self.getHighlighted(self.charts['countries'], 'country', 'The most reported ')
         return
+    
+    def getHighlighted(self, items, key, prefix):
+        if not len(items):
+            return "topics are not found ."
+        maxBlockAppearance = items[0]['total_block_count_in_range'];
+        allowedRange = maxBlockAppearance / 2;
+        
+        highlights = []
+        for item in items:
+            if (maxBlockAppearance - item['total_block_count_in_range'] < allowedRange):
+                highlights.append('"' + item['display'] + '"');
+        
+        if (not len(highlights)):
+            return ''
+             
+        if (len(highlights) == 1):
+            return prefix + key + ' is ' + highlights[0] + '. '
+        
+        if (key == 'topic'): key = 'topics';
+        if (key == 'organization'): key = 'organizations';
+        if (key == 'individual'): key = 'individuals';
+        if (key == 'country'): key = 'countries';
+        
+        if (len(highlights) == 2):
+            return prefix + key + ' are ' + highlights[0] + ' and ' + highlights[1] + '. '
+        
+        return prefix + key + ' are ' + ', '.join(highlights[0:-1]) + ' and ' + highlights[-1] + '. '
     
     def get(self):
         self.charts['dates'] = self.dataDates
@@ -75,19 +109,22 @@ class Core(Base):
         if not items.keys():
             return []
         
-        start = self.strToDate(start)
-        end = self.strToDate(end)
+        start = self.unformattedStrToDate(start)
+        end = self.unformattedStrToDate(end)
         
         itemsInRange = {}
         
         for key in items.keys():
             keyCount = 0
-            if len(items[key]['count_per_day']):
-                for dateKey in items[key]['count_per_day'].keys():
-                    itemDate = self.strToDate(dateKey)
+            allCountPerDay = items[key]['count_per_day']
+            items[key]['count_per_day'] = {}
+            if len(allCountPerDay):
+                for dateKey in allCountPerDay.keys():
+                    itemDate = self.unformattedStrToDate(dateKey)
                     if (itemDate >= start) and (itemDate <= end):
-                        keyCount += items[key]['count_per_day'][dateKey]
-                        
+                        keyCount += allCountPerDay[dateKey]
+                        items[key]['count_per_day'][dateKey] =  allCountPerDay[dateKey]
+                    
             if keyCount:
                 itemsInRange[key] = items[key]
                 itemsInRange[key]['total_block_count_in_range'] = keyCount
@@ -100,3 +137,8 @@ class Core(Base):
             return sortedItems[0: limit]
         
         return sortedItems
+    
+    def unformattedStrToDate(self, date):
+        year, month, day = self.getSplited(date)
+        return self.strToDate(str(year) + '-' + str(self.getFormattedMonthOrDay(month)) + '-' + str(self.getFormattedMonthOrDay(day)))
+        
