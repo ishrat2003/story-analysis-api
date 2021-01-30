@@ -6,11 +6,7 @@ from reader.analysis import Analysis
 class Core(Base):
     
     def __init__(self, params):
-        self.dataDates = {
-            'max': None,
-            'min': None
-        }
-        self.params = params
+        super().__init__(params)
         self.charts = {}
         self.storyAnalysis = Analysis()
         self.data = None
@@ -20,7 +16,7 @@ class Core(Base):
     def load(self):
         self.data = self.storyAnalysis.getTopics()
         self.charts = {}
-        self.loadDataDates()
+        self.loadDataDates(self.data)
         self.setStart()
         self.setEnd()
         self.countTopics()
@@ -79,32 +75,6 @@ class Core(Base):
         self.charts['topics'] = topicsProcessor.count(self.dataDates['start'], self.dataDates['end'], self.data)
         return
     
-    def loadDataDates(self):
-        minYear, maxYear = self.getMaxMin(self.data.keys())
-        minMonthOfMinYear, _ = self.getMaxMin(self.data[minYear].keys())
-        _, maxMonthOfMaxYear = self.getMaxMin(self.data[maxYear].keys())
-        minDayOfminMonthOfMinYear, _ = self.getMaxMin(self.data[minYear][minMonthOfMinYear].keys())
-        _, maxDayOfMaxMonthOfMaxYear = self.getMaxMin(self.data[maxYear][maxMonthOfMaxYear].keys())
-        self.dataDates = {
-            'max': maxYear + '-' + self.getFormattedMonthOrDay(maxMonthOfMaxYear) + '-' + self.getFormattedMonthOrDay(maxDayOfMaxMonthOfMaxYear),
-            'min': minYear + '-' + self.getFormattedMonthOrDay(minMonthOfMinYear) + '-' + self.getFormattedMonthOrDay(minDayOfminMonthOfMinYear)
-        }
-        return
-    
-    def setStart(self):
-        if (('start' not in self.params.keys()) or not self.isValidMin(self.params['start'])):
-            self.dataDates['start'] = self.dataDates['min']
-        else:
-            self.dataDates['start'] = self.params['start']
-        return
-    
-    def setEnd(self):
-        if (('end' not in self.params.keys()) or not self.isValidMax(self.params['end'])):
-            self.dataDates['end'] = self.dataDates['max']
-        else:
-            self.dataDates['end'] = self.params['end']
-        return
-    
     def infoPerDateRange(self, items, start, end, limit):
         if not items.keys():
             return []
@@ -138,7 +108,4 @@ class Core(Base):
         
         return sortedItems
     
-    def unformattedStrToDate(self, date):
-        year, month, day = self.getSplited(date)
-        return self.strToDate(str(year) + '-' + str(self.getFormattedMonthOrDay(month)) + '-' + str(self.getFormattedMonthOrDay(day)))
-        
+    

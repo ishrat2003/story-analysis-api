@@ -21,6 +21,13 @@ class Analysis(S3):
             content = json.load(content['Body'])
             return content
         return None
+    
+    def getWordFileContent(self, key):
+        content = self.getContent('words/' + key + '.json')
+        if content:
+            content = json.load(content['Body'])
+            return content
+        return None
         
 
 
