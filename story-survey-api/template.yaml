@@ -139,19 +139,19 @@ Resources:
             Path: /topic
             Method: post
 
-  StoryboardFunction:
+  TermboardFunction:
     Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
     Properties:
-      CodeUri: storyboard/
-      Handler: app.lambda_storyboard_handler
+      CodeUri: termboard/
+      Handler: app.lambda_termboard_handler
       Layers:
         - arn:aws:lambda:eu-west-1:540686626730:layer:StoryLayer:6
       Runtime: python3.8
       Events:
-        storyboard:
+        termboard:
           Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
           Properties:
-            Path: /storyboard
+            Path: /termboard
             Method: post
 
 Outputs:
@@ -194,14 +194,14 @@ Outputs:
     Value:
       GETATT: TopicIamRole.IamRoleArn
 
-  StoryboardApi:
+  TermboardApi:
     Description: "API Gateway endpoint URL for Prod stage for  Topic function"
-    Value: "https://story-analysis-api.execute-api.eu-west-1.amazonaws.com/storyboard/"
-  StoryboardFunction:
+    Value: "https://story-analysis-api.execute-api.eu-west-1.amazonaws.com/termboard/"
+  TermboardFunction:
     Description: "Topic Lambda Function ARN"
     Value:
-      GETATT: StoryboardFunction.Arn
-  StoryboardIamRole:
+      GETATT: TermboardFunction.Arn
+  TermboardIamRole:
     Description: "Implicit IAM Role created for Survey function"
     Value:
-      GETATT: StoryboardIamRole.IamRoleArn
+      GETATT: TermboardIamRole.IamRoleArn

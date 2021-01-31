@@ -61,8 +61,8 @@ Globals:
           Ref: REGION
   Api:
     Cors:
-      AllowMethods: '''GET,POST,OPTIONS'''
-      AllowHeaders: '''Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'''
+      AllowMethods: '''*'''
+      AllowHeaders: '''*'''
       AllowOrigin: '''*'''
 Resources:
   DynamoDBTable:
@@ -118,7 +118,7 @@ Resources:
   TopicFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: s3://sam-story-analysis/57d69ab7ec357acb7de2539fd164a886
+      CodeUri: s3://sam-story-analysis/431f06ee85f6a06a6cf92120b4bd6771
       Handler: app.lambda_topic_handler
       Layers:
       - arn:aws:lambda:eu-west-1:540686626730:layer:StoryLayer:6
@@ -129,19 +129,19 @@ Resources:
           Properties:
             Path: /topic
             Method: post
-  StoryboardFunction:
+  TermboardFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: s3://sam-story-analysis/416e0cecc8f9a9a469499d9da94747ea
-      Handler: app.lambda_storyboard_handler
+      CodeUri: s3://sam-story-analysis/08a5fb4b85c1924b037e10498c515fe2
+      Handler: app.lambda_termboard_handler
       Layers:
       - arn:aws:lambda:eu-west-1:540686626730:layer:StoryLayer:6
       Runtime: python3.8
       Events:
-        storyboard:
+        termboard:
           Type: Api
           Properties:
-            Path: /storyboard
+            Path: /termboard
             Method: post
 Outputs:
   LcApi:
@@ -177,14 +177,14 @@ Outputs:
     Description: Implicit IAM Role created for Survey function
     Value:
       GETATT: TopicIamRole.IamRoleArn
-  StoryboardApi:
+  TermboardApi:
     Description: API Gateway endpoint URL for Prod stage for  Topic function
-    Value: https://story-analysis-api.execute-api.eu-west-1.amazonaws.com/storyboard/
-  StoryboardFunction:
+    Value: https://story-analysis-api.execute-api.eu-west-1.amazonaws.com/termboard/
+  TermboardFunction:
     Description: Topic Lambda Function ARN
     Value:
-      GETATT: StoryboardFunction.Arn
-  StoryboardIamRole:
+      GETATT: TermboardFunction.Arn
+  TermboardIamRole:
     Description: Implicit IAM Role created for Survey function
     Value:
-      GETATT: StoryboardIamRole.IamRoleArn
+      GETATT: TermboardIamRole.IamRoleArn

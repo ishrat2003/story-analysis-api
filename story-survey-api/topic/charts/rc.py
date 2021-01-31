@@ -19,7 +19,8 @@ class RC(Base):
         self.linegraph = {}
         self.totalInRange = 0
         self.grandTotal = 0;
-        self.allowedMinimum = 5
+        self.allowedMinimum = 2
+        self.subTopicLimit = 30
         return
     
     def getSubTopics(self):
@@ -52,7 +53,7 @@ class RC(Base):
             'grand_total': self.grandTotal,
             'total_in_range': self.totalInRange,
             'linegraph': rows,
-            'sub_topics': self.filteredWords
+            'sub_topics': self.filteredWords[0:self.subTopicLimit]
         }
     
     def loadFilteredWords(self):

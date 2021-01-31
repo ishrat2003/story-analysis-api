@@ -1,12 +1,12 @@
 
 import json
-from storyboard.core import Core as Storyboard
+from termboard.core import Core as Termboard
 
 
-def lambda_storyboard_handler(event, context):
+def lambda_termboard_handler(event, context):
     eventData = json.loads(event['body']);
-    storyboard = Storyboard(eventData)
-    data = storyboard.get()
+    termboard = Termboard(eventData)
+    data = termboard.get()
     return {
         "statusCode": 200,
         "headers": {
