@@ -39,9 +39,13 @@ Parameters:
     Description: Google Knowledge Graph Api Key
     Type: AWS::SSM::Parameter::Value<String>
     Default: AIzaSyDeBUKPWbaGd3B6oWYg4ZMzK9FXgg4jlAM
+  TIMEOUT:
+    Description: Timeout
+    Type: AWS::SSM::Parameter::Value<String>
+    Default: 3600
 Globals:
   Function:
-    Timeout: 1000
+    Timeout: 3600
     Environment:
       Variables:
         API_NAME: story_survey_api
@@ -59,6 +63,8 @@ Globals:
           Ref: S3_ENDPOINT
         REGION:
           Ref: REGION
+        TIMEOUT:
+          Ref: TIMEOUT
   Api:
     Cors:
       AllowMethods: '''*'''
@@ -90,7 +96,7 @@ Resources:
       Handler: app.save_handler
       Runtime: python3.8
       Layers:
-      - arn:aws:lambda:eu-west-1:540686626730:layer:StoryLayer:9
+      - arn:aws:lambda:eu-west-1:540686626730:layer:StoryLayer:10
       Policies:
       - DynamoDBCrudPolicy:
           TableName:
@@ -104,10 +110,10 @@ Resources:
   LcFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: s3://sam-story-analysis/2afdc1d290ea2c35289864b939335088
+      CodeUri: s3://sam-story-analysis/aa84752bef51253c6353de31eaad1de8
       Handler: app.lambda_lc_handler
       Layers:
-      - arn:aws:lambda:eu-west-1:540686626730:layer:StoryLayer:6
+      - arn:aws:lambda:eu-west-1:540686626730:layer:StoryLayer:10
       Runtime: python3.8
       Events:
         lc:
@@ -121,7 +127,7 @@ Resources:
       CodeUri: s3://sam-story-analysis/431f06ee85f6a06a6cf92120b4bd6771
       Handler: app.lambda_topic_handler
       Layers:
-      - arn:aws:lambda:eu-west-1:540686626730:layer:StoryLayer:6
+      - arn:aws:lambda:eu-west-1:540686626730:layer:StoryLayer:10
       Runtime: python3.8
       Events:
         topic:
@@ -132,10 +138,10 @@ Resources:
   TermboardFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: s3://sam-story-analysis/08a5fb4b85c1924b037e10498c515fe2
+      CodeUri: s3://sam-story-analysis/6a69aef7d7adbb9b5aa8489006c98059
       Handler: app.lambda_termboard_handler
       Layers:
-      - arn:aws:lambda:eu-west-1:540686626730:layer:StoryLayer:6
+      - arn:aws:lambda:eu-west-1:540686626730:layer:StoryLayer:10
       Runtime: python3.8
       Events:
         termboard:

@@ -7,12 +7,13 @@ class Core:
     def __init__(self, params):
         self.params = params
         self.rcAnalysis = Analysis()
-        self.documentLimit = 25
+        self.documentLimit = 100
         self.subTopicDocumentLimit = 2
         self.storyWordPerCategoryLimit = 5
         self.blockOccuranceFactor = 10
         self.termsPerBubble = 3
         self.topics = params['topic_keys']
+        self.topicNames = {}
         self.documents = {}
         self.datedCount = {}
         self.terms = {}
@@ -51,9 +52,9 @@ class Core:
         self.scoreTerms('actions', 'what_action')
         self.scoreTerms('positive', 'why_positive')
         self.scoreTerms('negative', 'why_negative')
-        
-        print(self.terms['topics'].keys())
+
         return {
+            'description': self.getBoardDescription(),
             'total': self.total,
             'date_range': {
                 'min': self.dateToStr(self.minDate),
@@ -63,6 +64,19 @@ class Core:
             'board': self.intendedTerms,
             'documents': self.processDocumentsForDisplay()
         }
+        
+    def getBoardDescription(self):
+        text = 'Displaying ' + str(self.total) + ' news from ' + self.dateToStr(self.minDate) + ' to ' + self.dateToStr(self.maxDate) + ' about '
+        totalNames = len(self.topicNames.keys())
+        processed = 0
+        divider = ''
+        for nameKey in self.topicNames.keys():
+            if processed <= totalNames - 1:
+                text += divider + '"' + self.topicNames[nameKey] + '"'
+                processed += 1
+            divider = ' and ' if processed == totalNames - 1 else ', '
+            
+        return text
     
     def scoreTerms(self, fieldKey, destinationKey, categories = None, samples = []):
         if ((fieldKey not in self.terms.keys())
@@ -94,9 +108,9 @@ class Core:
             if item['stemmed_word'] in self.usedTerms[fieldKey]:
                 continue
             bubbleItems.append({
-                'display': item['pure_word'][0].upper() + item['pure_word'][1:],
+                'name': item['pure_word'][0].upper() + item['pure_word'][1:],
                 'key': item['stemmed_word'],
-                'block_count': item['block_count'],
+                'size': item['block_count'],
                 'old_to_new': item['old_to_new'],
                 'new_to_old': item['new_to_old'],
                 'consistent': item['consistent'],
@@ -124,17 +138,17 @@ class Core:
             return []
         
         data = []
-        days = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
+        days = [0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
         for year in range(self.minDate.year, self.maxDate.year + 1):
             for month in range(1, 12 + 1):
                 if (((year == self.minDate.year) and (month < self.minDate.month)) or 
                     ((year == self.maxDate.year) and (month > self.maxDate.month))):
                     continue
                 
-                days = days[month]
+                totalDays = days[month]
                 if self.isLeapYear(year) and (month == 2):
                     days = 29
-                for day in range(1, days + 1):
+                for day in range(1, totalDays + 1):
                     if (((year == self.minDate.year) and (month == self.minDate.month) and (day < self.minDate.day)) or 
                         ((year == self.maxDate.year) and (month == self.maxDate.month) and (day > self.maxDate.day))):
                         continue
@@ -180,7 +194,7 @@ class Core:
     def loadDocuments(self, data):
         if not data or 'documents' not in data.keys():
             return
-        
+        self.total = 0
         years = data['documents'].keys()
         if not len(years):
             return
@@ -197,7 +211,9 @@ class Core:
                     totalMatch = 0
                     
                     for link in data['documents'][year][month][day].keys():
-                        if self.processSingleDocument(fullDateKey, link, data['documents'][year][month][day][link]):
+                        if link in self.documents.keys():
+                            continue
+                        if self.processSingleDocument(fullDateKey, link, data['documents'][year][month][day][link]) > 0:
                             totalMatch += 1
                             self.total += 1
                     
@@ -233,11 +249,11 @@ class Core:
         score = 0
         for topic in self.topics:
             if topic in documentTopics:
+                self.topicNames[topic] = document['topics'][topic]['pure_word']
                 totalMatched += 1
                 score += len(document['topics'][topic]['blocks']) * self.blockOccuranceFactor + document['topics'][topic]['count']
                 
-        # Length of sub-terms is totalMatched - 1. First term is the main topic
-        if shouldMatched - 1 != totalMatched:
+        if shouldMatched != totalMatched:
             return 0
         return score / shouldMatched
     

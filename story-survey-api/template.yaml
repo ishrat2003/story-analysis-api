@@ -46,11 +46,16 @@ Parameters:
     Type: AWS::SSM::Parameter::Value<String>
     Default: "AIzaSyDeBUKPWbaGd3B6oWYg4ZMzK9FXgg4jlAM"
 
+  TIMEOUT:
+    Description: Timeout
+    Type: AWS::SSM::Parameter::Value<String>
+    Default: 3600
+
 # More info about Globals: 
 Globals:
   Function:
     # Properties of AWS::Serverless::Function
-    Timeout: 1000
+    Timeout: 3600
     Environment:
       Variables:
         API_NAME: story_survey_api
@@ -61,6 +66,7 @@ Globals:
         GOOGLE_KNOWLEDGE_GRAPH: !Ref GOOGLE_KNOWLEDGE_GRAPH
         S3_ENDPOINT: !Ref S3_ENDPOINT
         REGION: !Ref REGION
+        TIMEOUT: !Ref TIMEOUT
   Api:
     # Properties of AWS::Serverless::Api
     Cors:
@@ -95,7 +101,7 @@ Resources:
       Handler: app.save_handler
       Runtime: python3.8
       Layers:
-        - arn:aws:lambda:eu-west-1:540686626730:layer:StoryLayer:9
+        - arn:aws:lambda:eu-west-1:540686626730:layer:StoryLayer:10
       Policies:
         - DynamoDBCrudPolicy:
             TableName: 
@@ -114,7 +120,7 @@ Resources:
       CodeUri: lc/
       Handler: app.lambda_lc_handler
       Layers:
-        - arn:aws:lambda:eu-west-1:540686626730:layer:StoryLayer:6
+        - arn:aws:lambda:eu-west-1:540686626730:layer:StoryLayer:10
       Runtime: python3.8
       Events:
         lc:
@@ -130,7 +136,7 @@ Resources:
       CodeUri: topic/
       Handler: app.lambda_topic_handler
       Layers:
-        - arn:aws:lambda:eu-west-1:540686626730:layer:StoryLayer:6
+        - arn:aws:lambda:eu-west-1:540686626730:layer:StoryLayer:10
       Runtime: python3.8
       Events:
         topic:
@@ -145,7 +151,7 @@ Resources:
       CodeUri: termboard/
       Handler: app.lambda_termboard_handler
       Layers:
-        - arn:aws:lambda:eu-west-1:540686626730:layer:StoryLayer:6
+        - arn:aws:lambda:eu-west-1:540686626730:layer:StoryLayer:10
       Runtime: python3.8
       Events:
         termboard:
