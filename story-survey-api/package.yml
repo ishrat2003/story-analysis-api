@@ -92,7 +92,7 @@ Resources:
   SurveyFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: s3://sam-story-analysis/35bdecd81582bdfd6d4b2de650625e2e
+      CodeUri: s3://sam-story-analysis/c18283068d1c7b667a0ff8f30cd09990
       Handler: app.save_handler
       Runtime: python3.8
       Layers:
@@ -110,7 +110,7 @@ Resources:
   LcFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: s3://sam-story-analysis/aa84752bef51253c6353de31eaad1de8
+      CodeUri: s3://sam-story-analysis/9d6fa86d55420534c8cdd13f397e013c
       Handler: app.lambda_lc_handler
       Layers:
       - arn:aws:lambda:eu-west-1:540686626730:layer:StoryLayer:10

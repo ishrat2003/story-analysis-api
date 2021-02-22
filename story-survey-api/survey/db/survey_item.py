@@ -25,8 +25,11 @@ class SurveyItem:
             'user_code',
             'story_source',
             'story_date',
+            'open_timestamp',
             'open_date_time',
+            'close_timestamp',
             'close_date_time',
+            'time_taken_in_seconds',
             'story_link', 
             'story_title', 
             'news_topics', 
@@ -36,20 +39,15 @@ class SurveyItem:
             'why', 
             'when_happened',
             'summary',
-            'confidence'
-        ]
+            'ease'
+        ]   
         return
     
     def save(self, data):
         validData = self.getBind(data)
-        
+        print(validData)
         if len(self.errors):
-            return {
-                "statusCode": 200,
-                "body": json.dumps({
-                    'errors': '<br>'.join(self.errors)
-                })
-            }
+            return { 'errors': '<br>'.join(self.errors) }
             
         if self.get(data):
             return self.update(validData)
@@ -86,15 +84,9 @@ class SurveyItem:
             print(response)
         except ClientError as e:
             print(e.response['Error']['Message']) 
-            return {
-                "statusCode": 200,
-                "body": json.dumps({'errors': 'Failed to CREATE details.'})
-            }
+            return {'errors': 'Failed to CREATE details.'}
     
-        return {
-                "statusCode": 200,
-                "body": json.dumps({'message': 'Record saved successfully.'})
-            }
+        return {'message': 'Record saved successfully.'}
 
     def update(self, validData):
         table = self.dynamodb.Table(self.tableName)
@@ -118,27 +110,18 @@ class SurveyItem:
             )
             print(response)
             if response: 
-                return {
-                    "statusCode": 200,
-                    "body": json.dumps({'message': 'Record UPDATED successfully.'})
-                }
+                return {'message': 'Record UPDATED successfully.'}
         except Exception as e:
             print(e)
             print(e.response['Error']['Message'])
-            return {
-                "statusCode": 200,
-                "body": json.dumps({'errors': e.response['Error']['Message']})
-            }
+            return {'errors': e.response['Error']['Message']}
           
-        return {
-                "statusCode": 200,
-                "body": json.dumps({'errors': 'Failed to UPDATE details.'})
-            }
+        return {'errors': 'Failed to UPDATE details.'}
         
     def clean(self, text):
         text = re.sub(r"'", '', text)
         return text
-
+    
     def getBind(self, data = {}):
         self.errors = []
         validData = {}
