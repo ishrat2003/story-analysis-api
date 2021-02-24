@@ -92,11 +92,11 @@ Resources:
   SurveyFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: s3://sam-story-analysis/c18283068d1c7b667a0ff8f30cd09990
+      CodeUri: s3://sam-story-analysis/f89e96d3e304a5d417a184e15419ed1c
       Handler: app.save_handler
       Runtime: python3.8
       Layers:
-      - arn:aws:lambda:eu-west-1:540686626730:layer:StoryLayer:10
+      - arn:aws:lambda:eu-west-1:540686626730:layer:StoryLayer:6
       Policies:
       - DynamoDBCrudPolicy:
           TableName:
@@ -127,7 +127,7 @@ Resources:
       CodeUri: s3://sam-story-analysis/431f06ee85f6a06a6cf92120b4bd6771
       Handler: app.lambda_topic_handler
       Layers:
-      - arn:aws:lambda:eu-west-1:540686626730:layer:StoryLayer:10
+      - arn:aws:lambda:eu-west-1:540686626730:layer:StoryLayer:6
       Runtime: python3.8
       Events:
         topic:
@@ -141,7 +141,7 @@ Resources:
       CodeUri: s3://sam-story-analysis/6a69aef7d7adbb9b5aa8489006c98059
       Handler: app.lambda_termboard_handler
       Layers:
-      - arn:aws:lambda:eu-west-1:540686626730:layer:StoryLayer:10
+      - arn:aws:lambda:eu-west-1:540686626730:layer:StoryLayer:6
       Runtime: python3.8
       Events:
         termboard:

@@ -5,6 +5,11 @@ from bs4 import BeautifulSoup
 
 class BBC(Core):
     
+    def __init__(self, format = "json"):
+        super().__init__()
+        self.html = ''
+        return
+    
     def getDate(self, item):
         return datetime.datetime.strptime(item['pubDate'][5:16], '%d %b %Y')
     
@@ -43,6 +48,7 @@ class BBC(Core):
             print("There was an error: %r" % e)
             return None 
         
+        self.html = ''
         soup = BeautifulSoup(page, features="html.parser")
         title = soup.find('title');
         description = soup.find("meta", {"name": "description"}).attrs['content']
@@ -52,7 +58,8 @@ class BBC(Core):
             'description': description,
             'pubDate': date.get('datetime'),
             'link': link,
-            'content': self.getPageContent(soup)
+            'content': self.getPageContent(soup),
+            'content_html': self.html
         }
         return item
     
@@ -70,12 +77,15 @@ class BBC(Core):
                     continue
                 if item.name in ['div']:
                     text += self.getDivText(item.findChildren())
-                elif item.name in ['p', 'ul', 'li', 'ol']:
-                    text += str(item.text) + ' '
+                elif item.name in ['p', 'ul', 'li', 'ol', 'h2', 'h3']:
+                    value = str(item.text)
+                    text += value + ' '
+                    if value:
+                        self.html += '<' + item.name + '>' + value + '</' + item.name + '>'
         return text
     
     def shouldIncludeItem(self, item):
-        if item.name not in ['p', 'ul', 'li', 'ol', 'div']:
+        if item.name not in ['p', 'ul', 'li', 'ol', 'div', 'h2', 'h3']:
             return False
         
         if item.attrs and 'class' in item.attrs.keys():
@@ -90,8 +100,11 @@ class BBC(Core):
         text = '';
         for div in divs:
             for item in div.findChildren():
-                if item.name in ['p', 'ul', 'li', 'ol']:
-                    text += str(item.text) + ' '
+                if item.name in ['p', 'ul', 'li', 'ol', 'h2', 'h3']:
+                    value = str(item.text)
+                    text += value + ' '
+                    if value:
+                        self.html += '<' + item.name + '>' + value + '</' + item.name + '>'
         return text
 
     

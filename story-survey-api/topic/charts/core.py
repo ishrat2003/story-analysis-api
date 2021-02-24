@@ -33,10 +33,16 @@ class Core(Base):
         
         self.charts['summary'] = "In the selected time frame (" + self.dataDates['start'] 
         self.charts['summary'] += " to " + self.dataDates['end'] + "), the most highlighted " 
-        self.charts['summary'] += self.getHighlighted(self.charts['topics'], 'topic', '')
-        self.charts['summary'] += self.getHighlighted(self.charts['organizations'], 'organization', 'The most stated ')
-        self.charts['summary'] += self.getHighlighted(self.charts['people'], 'individual', 'The most discussed ')
-        self.charts['summary'] += self.getHighlighted(self.charts['countries'], 'country', 'The most reported ')
+        
+        keys = self.charts.keys()
+        if 'topics' in keys:
+            self.charts['summary'] += self.getHighlighted(self.charts['topics'], 'topic', '')
+        if 'organizations' in keys:
+            self.charts['summary'] += self.getHighlighted(self.charts['organizations'], 'organization', 'The most stated ')
+        if 'individual' in keys:
+            self.charts['summary'] += self.getHighlighted(self.charts['people'], 'individual', 'The most discussed ')
+        if 'countries' in keys:
+            self.charts['summary'] += self.getHighlighted(self.charts['countries'], 'country', 'The most reported ')
         return
     
     def getHighlighted(self, items, key, prefix):

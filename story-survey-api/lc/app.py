@@ -36,6 +36,7 @@ def lambda_lc_handler(event, context):
         "body": json.dumps({
             "concepts": concepts,
             "title": eventData['title'],
-            "content": eventData['content']
+            "pubDate": eventData['pubDate'],
+            "content": eventData['content_html']
         })
     }

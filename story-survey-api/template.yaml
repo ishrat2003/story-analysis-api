@@ -136,7 +136,7 @@ Resources:
       CodeUri: topic/
       Handler: app.lambda_topic_handler
       Layers:
-        - arn:aws:lambda:eu-west-1:540686626730:layer:StoryLayer:10
+        - arn:aws:lambda:eu-west-1:540686626730:layer:StoryLayer:6
       Runtime: python3.8
       Events:
         topic:
@@ -151,7 +151,7 @@ Resources:
       CodeUri: termboard/
       Handler: app.lambda_termboard_handler
       Layers:
-        - arn:aws:lambda:eu-west-1:540686626730:layer:StoryLayer:10
+        - arn:aws:lambda:eu-west-1:540686626730:layer:StoryLayer:6
       Runtime: python3.8
       Events:
         termboard:
