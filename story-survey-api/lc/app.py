@@ -37,6 +37,6 @@ def lambda_lc_handler(event, context):
             "concepts": concepts,
             "title": eventData['title'],
             "pubDate": eventData['pubDate'],
-            "content": eventData['content_html']
+            "content": eventData['content_html'] if 'content_html' in eventData.keys() else ''
         })
     }

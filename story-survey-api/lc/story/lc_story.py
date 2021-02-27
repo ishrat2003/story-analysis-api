@@ -4,6 +4,7 @@ from nltk.stem.porter import PorterStemmer
 import utility
 import regex as re
 from .knowledge_graph import KnowledgeGraph
+from utility.utility import Utility
 
 class LCStory():
     
@@ -17,6 +18,7 @@ class LCStory():
         self.filter = filter
         self.positiveWords = utility.Utility.getPositiveWords()
         self.negativeWords = utility.Utility.getNegativeWords()
+        self.designations = Utility.getDesignations()
         self.splits = 5
         self.minCharLength = 1
         self.knowledgeGraphProcessor = KnowledgeGraph()
@@ -181,7 +183,7 @@ class LCStory():
                   continue
                 
                 if self.knowledgeGraphProcessor.addObject(indexNoun, fullProperNoun):
-                    self.properNouns[indexNoun] = fullProperNoun
+                    self.properNouns[indexNoun] = self.removeDesignation(fullProperNoun)
             
         self.data['categories'] = self.knowledgeGraphProcessor.getCategories()
         return
@@ -344,6 +346,7 @@ class LCStory():
         return pos_tag(words)
     
     def __getRawSentences(self, text):
+        text = re.sub(r'\'[a-z]{1,2}\s', r' ', text)
         text = re.sub(r'([0-9]+)\.([0-9]+)', r'\1##\2', text)
         text = re.sub(r'\.', r'#END#', text)
         text = re.sub(r'([0-9]+)##([0-9]+)', r'\1.\2', text)
@@ -443,3 +446,18 @@ class LCStory():
             self.allowedPOSTypes = list(set(self.allowedPOSTypes + self.wordPosGroups[key]))
 
         return
+    
+    def removeDesignation(self, fullName):
+        possibleNames = [fullName.title()]
+        for item in self.designations:
+            if len(item) > len(fullName):
+                return possibleNames[-1]
+            if fullName.find(item) != -1:
+                if item not in self.properNouns.keys():
+                    self.properNouns[item] = item.title()
+                possibleNames.append(fullName.replace(item, "").title())
+
+        return possibleNames[-1]
+    
+ 
+

@@ -2,6 +2,7 @@ from __future__ import print_function
 import json
 import urllib
 import os
+from .category import Category
 
 class KnowledgeGraph():
     
@@ -16,6 +17,7 @@ class KnowledgeGraph():
         self.categories = {}
         self.links = []
         self.nodeKeys = []
+        self.category = Category()
         return
     
     def getObjects(self):
@@ -112,6 +114,7 @@ class KnowledgeGraph():
             'indent': True,
             'key': self.apiKey,
         }
+
         url = self.endPoint + '?' + urllib.parse.urlencode(params)
         response = json.loads(urllib.request.urlopen(url).read())
         
@@ -129,7 +132,9 @@ class KnowledgeGraph():
         if response['itemListElement'][0]['resultScore'] < 5:
             return False
         
-        category = self.getCategory(response['itemListElement'][0]['result'])
+        category = self.category.get(query)
+        if not category:
+            category = self.getCategory(response['itemListElement'][0]['result'])
         self.objects[key] = {
             "name": query,
             "tooltip": self.getDescription(response['itemListElement'][0]['result']),
