@@ -25,7 +25,7 @@ class Base:
     def setStart(self):
         if (('start' not in self.params.keys()) 
             or not self.params['start'] 
-            or self.isGreaterThanMin(self.params['start'])):
+            or self.isLessThanMin(self.params['start'])):
             self.dataDates['start'] = self.dataDates['min']
         else:
             self.dataDates['start'] = self.params['start']
@@ -34,20 +34,20 @@ class Base:
     def setEnd(self):
         if (('end' not in self.params.keys()) 
             or not self.params['end'] 
-            or self.isLessThanMax(self.params['end'])):
+            or self.isGreaterThanMax(self.params['end'])):
             self.dataDates['end'] = self.dataDates['max']
         else:
             self.dataDates['end'] = self.params['end']
         return
     
-    def isGreaterThanMin(self, date):
+    def isGreaterThanMax(self, date):
         date = self.strToDate(date)
-        minDate = self.strToDate(self.dataDates['min'])
+        minDate = self.strToDate(self.dataDates['max'])
         return date > minDate
     
-    def isLessThanMax(self, date):
+    def isLessThanMin(self, date):
         date = self.strToDate(date)
-        maxDate = self.strToDate(self.dataDates['max'])
+        maxDate = self.strToDate(self.dataDates['min'])
         return date < maxDate
     
     def strToDate(self, date):
@@ -66,7 +66,7 @@ class Base:
         max = listKeys[totalItems - 1]
         return str(min), str(max)
     
-    def sort(self, items, attribute='total_block_count_in_range', reverse=True):
+    def sort(self, items, attribute='total_block_count_in_range', reverse=True, minValue = 0):
         if not len(items.keys()):
             return []
 
@@ -74,7 +74,8 @@ class Base:
         contributors = items.values()
         
         for value in sorted(contributors, key=operator.itemgetter(attribute), reverse=reverse):
-            sortedTopics.append(value)
+            if not isinstance(value[attribute], int) or (value[attribute] > minValue):
+                sortedTopics.append(value)
 
         return sortedTopics
     

@@ -10,7 +10,8 @@ class Core(Base):
         self.charts = {}
         self.storyAnalysis = Analysis()
         self.data = None
-        self.subItemLimit = 6
+        self.subItemLimit = 0
+        self.minimumCount = 3
         return
     
     def load(self):
@@ -36,7 +37,7 @@ class Core(Base):
         
         keys = self.charts.keys()
         if 'topics' in keys:
-            self.charts['summary'] += self.getHighlighted(self.charts['topics'], 'topic', '')
+            self.charts['summary'] += self.getHighlighted(self.charts['topics'], 'topics', '')
         if 'organizations' in keys:
             self.charts['summary'] += self.getHighlighted(self.charts['organizations'], 'organization', 'The most stated ')
         if 'individual' in keys:
@@ -47,7 +48,7 @@ class Core(Base):
     
     def getHighlighted(self, items, key, prefix):
         if not len(items):
-            return "topics are not found ."
+            return key.title() + " topics are not found ."
         maxBlockAppearance = items[0]['total_block_count_in_range'];
         allowedRange = maxBlockAppearance / 2;
         
@@ -108,7 +109,7 @@ class Core(Base):
         if not itemsInRange.keys():
             return []
         
-        sortedItems = self.sort(itemsInRange, 'total_block_count_in_range')
+        sortedItems = self.sort(itemsInRange, 'total_block_count_in_range', True, self.minimumCount)
         if limit:
             return sortedItems[0: limit]
         
