@@ -17,6 +17,8 @@ class Category:
         return 'Organization'
     if self.isSpecifiedCategory(pureWord, 'Organization'):
         return 'Organization'
+    if self.isSpecifiedCategory(pureWord, 'Time'):
+        return 'Time'
     return None
        
   def isSpecifiedCategory(self, pureWord, category):

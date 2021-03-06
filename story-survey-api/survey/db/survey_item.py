@@ -21,6 +21,7 @@ class SurveyItem:
         self.attributes = [
             'id',
             'created',
+            'condition',
             'environment',
             'user_code',
             'story_source',

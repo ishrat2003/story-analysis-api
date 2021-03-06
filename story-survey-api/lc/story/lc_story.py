@@ -121,42 +121,65 @@ class LCStory():
             return
         
         analyzedKeys = self.data['story_words_keys']
-        analyzedKeys = self.getKeys(pwfWords, analyzedKeys, 'position_weight_forward')
+        self.data['story_words_keys'] = []
+        self.addStoryWords(analyzedKeys);
+        print(analyzedKeys)
+        print('-------------------------')
         
+        analyzedKeys = self.getKeys(pwfWords, self.data['story_words_keys'], 'position_weight_forward')
+        self.addStoryWords(analyzedKeys);
+        print(analyzedKeys)
+        print('-------------------------')
+
+        analyzedKeys = []
         for wordKey in pwfWords.keys():
             word = pwfWords[wordKey]
-            if ((len(word['blocks']) >= math.floor(self.splits / 2)) and (wordKey not in analyzedKeys)):
+            if ((len(word['blocks']) >= math.floor(self.splits / 2)) and (wordKey not in self.data['story_words_keys'])):
                 analyzedKeys.append(wordKey)
-        
-        analyzedKeys = self.getKeys(pwbWords, analyzedKeys, 'position_weight_backward')
-        self.data['story_words_keys'] = analyzedKeys
-        
-        for key in analyzedKeys:
-            word = self.data['wordsInfo'][key]
-            self.data['story_words'].append(word)
-            if word['type'] in ['NNP', 'NNPS']:
-                display = word['pure_word'][0].upper() + word['pure_word'][1:]
-                if display not in self.data['topic_words']:
-                    self.data['topic_words'].append(display)
-                    
+        self.addStoryWords(analyzedKeys)
+        print(analyzedKeys)
+        print('-------------------------')
+
+        analyzedKeys = self.getKeys(pwbWords, self.data['story_words_keys'], 'position_weight_backward')
+        self.addStoryWords(analyzedKeys)
+        print(analyzedKeys)
+        print('-------------------------')
+ 
         self.data['total_topic_words'] = len(self.data['topic_words'])
         self.data['total_story_words'] = len(self.data['story_words'])
         return
     
+    def addStoryWords(self, analyzedKeys):
+        if not analyzedKeys:
+            return
+        storyWords = {}
+        for key in analyzedKeys:
+            if key in self.data['story_words_keys']:
+                continue
+            self.data['story_words_keys'].append(key)
+            word = self.data['wordsInfo'][key]
+            storyWords[key] = word
+            if word['type'] in ['NNP', 'NNPS']:
+                display = word['pure_word'][0].upper() + word['pure_word'][1:]
+                if display not in self.data['topic_words']:
+                    self.data['topic_words'].append(display)
+
+        sortedStoryWords = self.sortItems(storyWords, 'position_weight_forward')
+        for wordKey in sortedStoryWords.keys():
+            self.data['story_words'].append(sortedStoryWords[wordKey])
+        return
+    
     def getKeys(self, words, wordKeys, key = 'position_weight_forward', minItems = 10, minWeights = 2):
-        # totalWeightsConsidered = []
-        initCount = len(wordKeys)
+        newKeys = []
         for wordKey in words.keys():
             # if (len(totalWeightsConsidered) > minWeights) and (len(wordKeys) > initCount + minItems):
-            if (len(wordKeys) > initCount + minItems):
+            if (len(newKeys) > minItems):
                 break
             
             if wordKey not in wordKeys:
-                wordKeys.append(wordKey)
-                # if words[wordKey][key] not in totalWeightsConsidered:
-                #     totalWeightsConsidered.append(words[wordKey][key])
-                
-        return wordKeys
+                newKeys.append(wordKey)
+
+        return newKeys
     
     def setProspectiveProperNouns(self):
         if len(self.properNouns.keys()):
@@ -223,13 +246,14 @@ class LCStory():
     
     
     def sort(self, attribute='score'):
-        if not len(self.data['wordsInfo'].keys()):
+        return self.sortItems(self.data['wordsInfo'], attribute)
+        
+    def sortItems(self, wordsToProcess, attribute):
+        if wordsToProcess and not len(wordsToProcess.keys()):
             return
 
         sortedWords = {}
-        contributors = self.data['wordsInfo'].values()
-
-        
+        contributors = wordsToProcess.values()
         for value in sorted(contributors, key=operator.itemgetter(attribute, 'count'), reverse=True):
             sortedWords[value['stemmed_word']] = value
 
@@ -347,6 +371,7 @@ class LCStory():
     
     def __getRawSentences(self, text):
         text = re.sub(r'\'[a-z]{1,2}\s', r' ', text)
+        text = re.sub(r'[\'|"]', r'', text)
         text = re.sub(r'([0-9]+)\.([0-9]+)', r'\1##\2', text)
         text = re.sub(r'\.', r'#END#', text)
         text = re.sub(r'([0-9]+)##([0-9]+)', r'\1.\2', text)
