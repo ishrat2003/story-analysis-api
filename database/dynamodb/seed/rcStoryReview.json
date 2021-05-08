@@ -1,0 +1,27 @@
+{
+    "TableName": "rcstoryreview",
+    "AttributeDefinitions": [
+        {
+            "AttributeName": "story_terms",
+            "AttributeType": "S"
+        },
+        {
+            "AttributeName": "user_code",
+            "AttributeType": "S"
+        }
+    ],
+    "KeySchema": [
+        {
+            "AttributeName": "story_terms",
+            "KeyType": "HASH"
+        },
+        { 
+            "AttributeName": "user_code",
+            "KeyType": "RANGE"
+        }
+    ],
+    "ProvisionedThroughput": {
+        "ReadCapacityUnits": 5,
+        "WriteCapacityUnits": 5
+    }
+}

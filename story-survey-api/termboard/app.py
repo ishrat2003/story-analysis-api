@@ -5,6 +5,7 @@ from termboard.core import Core as Termboard
 
 def lambda_termboard_handler(event, context):
     eventData = json.loads(event['body']);
+    print(eventData)
     termboard = Termboard(eventData)
     data = termboard.get()
     return {

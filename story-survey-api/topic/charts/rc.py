@@ -64,8 +64,8 @@ class RC(Base):
         for word in words:
             if self.blockCounts[word] >= self.allowedMinimum :
                 self.filteredWords[word] = {
-                    'display': self.pureWords[word][0].upper() + self.pureWords[word][1:],
-                    'size': len(self.wordDocuments[word]),
+                    'display': self.getDisplayName(word),
+                    'size': self.blockCounts[word],
                     'key': word
                 }
                 
@@ -73,12 +73,17 @@ class RC(Base):
             self.filteredWords = self.sort(self.filteredWords, 'size')
         return
     
+    def getDisplayName(self, word):
+        if word in self.pureWords.keys():
+            return self.pureWords[word][0].upper() + self.pureWords[word][1:]
+        return word
+    
     def loadDocuments(self, documents):
         for year in documents.keys():
             for month in documents[year].keys():
                 for day in documents[year][month].keys():
                     for link in documents[year][month][day].keys():
-                        fullDate = str(year) + '-' + self.getFormattedMonthOrDay(month) + '-' + self.getFormattedMonthOrDay(day)
+                        fullDate = str(year) + '-' + self.getFormattedMonthOrDay(int(month)) + '-' + self.getFormattedMonthOrDay(int(day))
                         
                         if self.isTotalInRange(self.strToDate(fullDate)):
                             if fullDate not in self.linegraph.keys():

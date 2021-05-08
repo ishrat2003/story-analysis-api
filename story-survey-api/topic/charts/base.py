@@ -12,13 +12,20 @@ class Base:
     
     def loadDataDates(self, data):
         minYear, maxYear = self.getMaxMin(data.keys())
-        minMonthOfMinYear, _ = self.getMaxMin(data[minYear].keys())
-        _, maxMonthOfMaxYear = self.getMaxMin(data[maxYear].keys())
-        minDayOfminMonthOfMinYear, _ = self.getMaxMin(data[minYear][minMonthOfMinYear].keys())
-        _, maxDayOfMaxMonthOfMaxYear = self.getMaxMin(data[maxYear][maxMonthOfMaxYear].keys())
+
+        minMonthOfMinYear, _ = self.getMaxMin(data[minYear].keys(), 'month')
+        _, maxMonthOfMaxYear = self.getMaxMin(data[maxYear].keys(), 'month')
+        formattedMinMonthOfMinYear = self.getFormattedMonthOrDay(minMonthOfMinYear)
+        formattedMaxMonthOfMaxYear = self.getFormattedMonthOrDay(maxMonthOfMaxYear)
+
+        minDayOfminMonthOfMinYear, _ = self.getMaxMin(data[minYear][minMonthOfMinYear].keys(), 'day')
+        _, maxDayOfMaxMonthOfMaxYear = self.getMaxMin(data[maxYear][maxMonthOfMaxYear].keys(), 'day')
+        formattedMaxDayOfMaxMonthOfMaxYear = self.getFormattedMonthOrDay(maxDayOfMaxMonthOfMaxYear)
+        formattedMinDayOfminMonthOfMinYear = self.getFormattedMonthOrDay(minDayOfminMonthOfMinYear)
+
         self.dataDates = {
-            'max': maxYear + '-' + self.getFormattedMonthOrDay(maxMonthOfMaxYear) + '-' + self.getFormattedMonthOrDay(maxDayOfMaxMonthOfMaxYear),
-            'min': minYear + '-' + self.getFormattedMonthOrDay(minMonthOfMinYear) + '-' + self.getFormattedMonthOrDay(minDayOfminMonthOfMinYear)
+            'max': maxYear + '-' + formattedMinMonthOfMinYear + '-' + formattedMaxDayOfMaxMonthOfMaxYear,
+            'min': minYear + '-' + formattedMaxMonthOfMaxYear + '-' + formattedMinDayOfminMonthOfMinYear
         }
         return
     
@@ -54,11 +61,15 @@ class Base:
         return datetime.datetime.strptime(date, '%Y-%m-%d')
     
     def getFormattedMonthOrDay(self, number):
+        number = int(number)
         if int(number) < 10:
             return '0' + str(number)
-        return number
+        return str(number)
 
-    def getMaxMin(self, items):
+    def getMaxMin(self, items, type = 'year'):
+        now = datetime.datetime.now()
+        if not items:
+            items = [now[type]]
         listKeys = list(map(int, items))
         listKeys = sorted(listKeys)
         totalItems = len(listKeys)

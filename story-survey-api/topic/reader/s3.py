@@ -12,5 +12,9 @@ class S3():
         return
     
     def getContent(self, key):
-        return self.client.get_object(Bucket = self.bucket, Key = key)
+        try:
+            return self.client.get_object(Bucket = self.bucket, Key = key)
+        except:
+            return None
+        
 

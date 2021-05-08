@@ -1,4 +1,4 @@
-import os, datetime, operator
+import os, datetime, operator, itertools
 from reader.analysis import Analysis
 from file.json import Json as JsonFile
 
@@ -31,6 +31,8 @@ class Core:
             'why_negative': {}
         }
         self.file = JsonFile()
+        self.relations = {}
+        self.minRelationCount = 0
         self.load()
         return
     
@@ -99,7 +101,30 @@ class Core:
         self.intendedTerms[destinationKey]['consistent'] = self.fillBoardTerms(filterWords, 'consistent', fieldKey)
         self.intendedTerms[destinationKey]['old_to_new'] = self.fillBoardTerms(filterWords, 'old_to_new', fieldKey)
         self.intendedTerms[destinationKey]['new_to_old'] = self.fillBoardTerms(filterWords, 'new_to_old', fieldKey)
+        
+        self.intendedTerms[destinationKey]['consistent_relations'] = self.fillBoardRelations(self.intendedTerms[destinationKey]['consistent'])
+        self.intendedTerms[destinationKey]['old_to_new_relations'] = self.fillBoardRelations(self.intendedTerms[destinationKey]['old_to_new'])
+        self.intendedTerms[destinationKey]['new_to_old_relations'] = self.fillBoardRelations(self.intendedTerms[destinationKey]['new_to_old'])
         return
+    
+    def fillBoardRelations(self, bubbles):
+        if not bubbles:
+            return []
+        
+        relations = []
+        for bubble in bubbles:
+            if 'relations' in bubble.keys():
+                if not bubble['relations']:
+                    continue
+                totalRelation = 0
+                for relation in bubble['relations']:
+                    if relation['size'] > self.minRelationCount:
+                        if totalRelation > 5:
+                            break
+                        relations.append(relation)
+                        totalRelation += 1
+        return relations
+        
     
     def fillBoardTerms(self, items, attributeKey, fieldKey):
         sorted =  self.sort(items, attributeKey, True) 
@@ -107,19 +132,38 @@ class Core:
         for item in sorted:
             if item['stemmed_word'] in self.usedTerms[fieldKey]:
                 continue
+            name = item['pure_word'][0].upper() + item['pure_word'][1:]
             bubbleItems.append({
-                'name': item['pure_word'][0].upper() + item['pure_word'][1:],
+                'name': name,
                 'key': item['stemmed_word'],
                 'size': item['block_count'],
                 'old_to_new': item['old_to_new'],
                 'new_to_old': item['new_to_old'],
                 'consistent': item['consistent'],
-                'description': item['description']
+                'description': item['description'],
+                'relations': self.getRelations(item['relations'], name)
             })
             self.usedTerms[fieldKey].append(item['stemmed_word'])
             if len(bubbleItems) == self.termsPerBubble:
                 break
         return bubbleItems
+    
+    def getRelations(self, relations, source):
+        processedRelations = {}
+        if not relations:
+            return
+        for key in relations.keys():
+            if relations[key]['value'] > self.minRelationCount:
+                documents = dict(itertools.islice(relations[key]['documents'].items(), 5))
+                processedRelations[key] = {
+                    'source': source,
+                    'target': relations[key]['display'],
+                    'size': relations[key]['value'],
+                    'documents': documents
+                }
+                
+        sortedTelations = self.sort(processedRelations, 'size', True) 
+        return sortedTelations
     
     def getOldToNewScore(self, dates):
         score = 0
@@ -153,7 +197,7 @@ class Core:
                         ((year == self.maxDate.year) and (month == self.maxDate.month) and (day > self.maxDate.day))):
                         continue
 
-                    fullDateKey = str(year) + '-' + self.getFormattedMonthOrDay(str(month)) + '-' + self.getFormattedMonthOrDay(str(day))
+                    fullDateKey = str(year) + '-' + self.getFormattedMonthOrDay(month) + '-' + self.getFormattedMonthOrDay(day)
 
                     totalCount = 0
                     if fullDateKey in self.datedCount.keys():
@@ -251,7 +295,7 @@ class Core:
             if topic in documentTopics:
                 self.topicNames[topic] = document['topics'][topic]['pure_word']
                 totalMatched += 1
-                score += len(document['topics'][topic]['blocks']) * self.blockOccuranceFactor + document['topics'][topic]['count']
+                score += document['topics'][topic]['score']
                 
         if shouldMatched != totalMatched:
             return 0
@@ -267,17 +311,40 @@ class Core:
         for key in documentTopics:
             self.addTerm(document, date, key, fieldKey)
             
+            
     def addTerm(self, document, date, key, fieldKey):
+        miniDoc = {
+            'title': document['title'],
+            'description': document['description'],
+            'link': document['link']
+        }
         if key in self.terms[fieldKey].keys():
             self.terms[fieldKey][key]["block_count"] += 1
             self.terms[fieldKey][key]['dates'].append(date)
+            self.terms[fieldKey][key]['relations'] = self.mergeRelations(miniDoc, document[fieldKey][key]['relations'], self.terms[fieldKey][key]['relations'])
             return
 
         self.terms[fieldKey][key] = document[fieldKey][key]
         self.terms[fieldKey][key]['dates'] = [date]
         self.terms[fieldKey][key]["block_count"] = 1
-        
+        self.terms[fieldKey][key]["relations"] = self.mergeRelations(miniDoc, document[fieldKey][key]['relations'], {})
         return
+    
+    def mergeRelations(self, miniDoc, dictionary1, dictionary2):
+        relations = dictionary2
+        relations1 = dictionary1 if dictionary1 else {}
+        
+        for set in [relations1]:
+            for key in set.keys():
+                if key in relations.keys():
+                    relations[key]['value'] += 1
+                    relations[key]['documents'][miniDoc['link']] = miniDoc
+                else:
+                    relations[key] = set[key]
+                    relations[key]['documents'] = {}
+                    relations[key]['documents'][miniDoc['link']] = miniDoc
+                
+        return relations
     
     def processDocumentsForDisplay(self):
         if not len(self.documents):
@@ -288,7 +355,7 @@ class Core:
         for link in self.documents.keys():
             document = self.documents[link]
             processedDocuments[link] = {
-                "url": document["url"],
+                "url": document["link"],
                 "title": document["title"],
                 "description": document["description"],
                 "score": document["score"],
@@ -302,9 +369,10 @@ class Core:
         return self.sort(processedDocuments, order, booleanDirection)
     
     def getFormattedMonthOrDay(self, number):
+        number = int(number)
         if int(number) < 10:
-            return '0' + number
-        return number
+            return '0' + str(number)
+        return str(number)
     
     def sort(self, items, attribute='score', reverse=True):
         if not len(items.keys()):

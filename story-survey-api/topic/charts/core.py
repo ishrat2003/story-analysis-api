@@ -10,7 +10,7 @@ class Core(Base):
         self.charts = {}
         self.storyAnalysis = Analysis()
         self.data = None
-        self.subItemLimit = 0
+        self.subItemLimit = 20
         self.minimumCount = 3
         return
     
@@ -110,8 +110,21 @@ class Core(Base):
             return []
         
         sortedItems = self.sort(itemsInRange, 'total_block_count_in_range', True, self.minimumCount)
-        if limit:
-            return sortedItems[0: limit]
+        totalItems = len(sortedItems)
+        if limit and totalItems > limit:
+            processedItems = sortedItems[0: limit]
+            otherItems = sortedItems[limit:]
+            totalOthers = 0
+            
+            for item in otherItems:
+                totalOthers += item['total_block_count_in_range']
+                
+            processedItems.append({
+                'display': 'Others',
+                'count_per_day': {},
+                'total_block_count_in_range': totalOthers
+            });
+            return processedItems
         
         return sortedItems
     
